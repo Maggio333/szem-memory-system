@@ -21,6 +21,11 @@ if [ -n "$slug" ]; then
     do-*__*) case "$slug" in *[!A-Za-z0-9_-]*) echo "BLAD: slug '$slug' zawiera niedozwolone znaki (dozwolone [A-Za-z0-9_-])" >&2; exit 1 ;; esac ;;
     *) echo "BLAD: slug musi miec forme do-<rola|all>__<temat> (dostal: '$slug')" >&2; exit 1 ;;
   esac
+  role="${slug#do-}"; role="${role%%__*}"
+  topic="${slug#do-*__}"
+  if [ -z "$role" ] || [ -z "$topic" ]; then
+    echo "BLAD: rola i temat w slugu nie moga byc puste (do-<rola|all>__<temat>, dostal: '$slug')" >&2; exit 1
+  fi
 fi
 ts="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 fts="$(date -u '+%Y-%m-%dT%H-%M-%SZ')"
