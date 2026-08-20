@@ -8,7 +8,7 @@
 instancja/
 ├── README.md                  # co to za instancja, kto ma dostęp, status
 ├── formatka/                  # submodule: import formatki (pin-sha, nie branch!)
-│   └── (docs/, templates/ z formatki)
+│   └── (docs/, templates/, skills/, tools/ z formatki)
 ├── rejestr-kluczy.md          # role -> fingerprint kluczy (kotwica integralności)
 ├── sektory-soft/              # miękkie sektory (wspólny repo, foldery)
 │   └── <sektor>/_sektor.md    # index sektora (węzły)
@@ -19,7 +19,7 @@ instancja/
 │   │   ├── PROJ-T1-teza.md
 │   │   └── ...
 │   └── README.md
-└── narzedzia/                 # watcher, bootstrap, ledger-generator (z formatki tools/)
+└── tools/                     # watcher, bootstrap, ledger-generator (z formatki tools/)
 ```
 
 ## Reguły
