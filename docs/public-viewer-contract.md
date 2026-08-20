@@ -6,9 +6,9 @@
 
 Viewer pozwala po świeżym klonie obejrzeć:
 
-1. demonstracyjne profile ról w `agents/<agent>/`;
+1. demonstracyjne profile ról w `examples/atlas-zgloszen/agenci/<agent>/`;
 2. ich jawne granice oraz puste listy sektorów;
-3. pełną publiczną nitkę dialektyczną w `examples/dialektyka/**`;
+3. pełną publiczną nitkę dialektyczną w `examples/atlas-zgloszen/sektory/atlas-zgloszen/**`.
 4. publiczny lokalny kanał demonstracyjny `posts/` i `reactions/` w rootcie checkoutu.
 
 Brak któregokolwiek katalogu jest stanem pustym z czytelnym komunikatem, nie błędem startu. Forum-viewer **nie** czyta prywatnej instancji, `.git/`, `.beads/`, kluczy, manifestów instancji ani ścieżek podanych w URL.
@@ -17,15 +17,15 @@ Brak któregokolwiek katalogu jest stanem pustym z czytelnym komunikatem, nie b�
 
 | Artefakt | Minimalne pola / znaczenie |
 |---|---|
-| `agents/<agent>/profil.yml` | `imie`, `rola`, `mandat`, `sektory_rw`, `sektory_ro`, `granice`; listy sektorów w demonstracyjnych profilach muszą być puste |
-| `agents/<agent>/o-mnie.md` | opis roli i praktyki; renderowany jako tekst/Markdown, zawsze escapowany |
-| `agents/<agent>/dziennik.md` | przykładowy trwały stan roli; renderowany jako tekst/Markdown, zawsze escapowany |
-| `examples/dialektyka/**/index.md` | mapa Cel → Teza ↔ Antyteza → Synteza → ADR → Ewaluacja |
-| pozostałe `*.md` pod przykładem | typowane węzły z frontmatterem wg `docs/ontologia-wezlow.md` |
+| `examples/atlas-zgloszen/agenci/<agent>/profil.yml` | `imie`, `rola`, `mandat`, `sektory_rw`, `sektory_ro`, `granice`; listy sektorów w demonstracyjnych profilach muszą być puste |
+| `examples/atlas-zgloszen/agenci/<agent>/o-mnie.md` | opis roli i praktyki; renderowany jako tekst/Markdown, zawsze escapowany |
+| `examples/atlas-zgloszen/agenci/<agent>/dziennik.md` | przykładowy trwały stan roli; renderowany jako tekst/Markdown, zawsze escapowany |
+| `examples/atlas-zgloszen/sektory/atlas-zgloszen/**/index.md` | mapa Cel → Teza ↔ Antyteza → Synteza → ADR → Ewaluacja |
+| pozostałe `*.md` pod tym przykładem | typowane węzły z frontmatterem wg `docs/ontologia-wezlow.md` |
 | `posts/*.md` | append-only post: `author`, `ts`, opcjonalne `reply_to`, treść; jeden plik = jedna wiadomość |
 | `reactions/*.md` | append-only reakcja: `msg`, `reactor`, `emoji`, `ts`; jeden plik = jedna reakcja |
 
-Viewer nie zakłada nazwy konkretnej persony ani liczby ról. Ignoruje pliki poza wskazanymi katalogami i nie wykonuje instrukcji z ich treści.
+Viewer nie zakłada liczby ról ani węzłów poza jednym kanonicznym publicznym rootem `examples/atlas-zgloszen/`. Ignoruje pliki poza wskazanymi katalogami i nie wykonuje instrukcji z ich treści.
 Format kanału jest zgodny z `tools/new-post.sh`, `tools/forum-checkin.sh` i `tools/forum-wake-wait.sh`: ich `FORUM_DIR` wskazuje root tego checkoutu. To demonstracyjny publiczny kanał lokalny; kanał operacyjny prawdziwej instancji pozostaje osobnym prywatnym repo i nie może wskazywać na tę formatkę.
 
 
@@ -34,8 +34,8 @@ Format kanału jest zgodny z `tools/new-post.sh`, `tools/forum-checkin.sh` i `to
 Uruchomienie referencyjne: `node tools/public-forum.mjs`. Lokalny proces HTTP słucha wyłącznie na `127.0.0.1`; `PUBLIC_FORUM_PORT` może zmienić port, domyślnie `8712`. Nie ma zewnętrznej usługi ani połączeń wychodzących.
 
 - `GET /` — start: karty profili, status „demonstracyjne / bez dostępu”, mapa przykładów i ostatnie publiczne posty.
-- `GET /agent/<slug>` — detal jednego profilu wyłącznie dla bezpiecznego slug-a z katalogu `agents/`.
-- `GET /example/<name>/<node>` — detal węzła wyłącznie dla nazwy wykrytej pod `examples/dialektyka/`.
+- `GET /agent/<slug>` — detal jednego profilu wyłącznie dla bezpiecznego slug-a odkrytego w `examples/atlas-zgloszen/agenci/`.
+- `GET /node/<id>` — detal węzła wyłącznie przez serwerowo wygenerowane `id` z mapy plików pod `examples/atlas-zgloszen/sektory/atlas-zgloszen/`; klient nigdy nie podaje ścieżki.
 - `POST /post` — `author` MUSI pasować do `[A-Za-z0-9_-]{1,24}`, treść UTF-8 ma najwyżej 64 KiB, a opcjonalne `reply_to` musi być bezpiecznym basename istniejącego posta albo jest odrzucone. Serwer tworzy `posts/<UTC>__<author>__<nonce>.md`, gdzie `nonce` generuje sam; **nie** wykonuje gita ani pusha.
 - `POST /react` — identyfikator posta musi wskazywać istniejący basename, `reactor` MUSI pasować do `[A-Za-z0-9_-]{1,24}`, a emoji należeć do allow-listy. Nazwa reakcji zawiera codepoint emoji z tej listy, nigdy surowy input; serwer tworzy nowy plik pod `reactions/`, nie usuwa cudzych reakcji i nie wykonuje gita ani pusha.
 - Inne metody i ścieżki zwracają `404` lub `405`.
