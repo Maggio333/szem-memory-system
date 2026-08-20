@@ -47,7 +47,7 @@ load_manifest() {
         esac ;;
     esac
   done < "$f"
-  # walidacja nazw (nit re-gate Wartownika): odrzuc smieci z prob injection ZANIM trafia do gitolite.conf
+  # walidacja nazw: odrzuc smieci z prob injection ZANIM trafia do gitolite.conf
   local _r _s _nm
   for _r in "${ROLES[@]}"; do
     case "$_r" in ""|*[!A-Za-z0-9_-]*) echo "BLAD manifest: niepoprawna nazwa roli: '$_r' (dozwolone [A-Za-z0-9_-])" >&2; return 1;; esac

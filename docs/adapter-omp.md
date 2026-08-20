@@ -14,7 +14,7 @@
 
 | # | Wymaganie | Opis | Adapter-Omp (implementacja) |
 |---|---|---|---|
-| 1 | **Tożsamość** | profil agenta: imię/rola/ID, sektory, granice; weryfikowalny przy starcie (profil-check — lekcja misfire) | `agents.git/<imie>/` (o-mnie.md + dziennik.md) + rejestr kluczy instancji; przy starcie sesji: przedstaw się i zweryfikuj z rejestrem |
+| 1 | **Tożsamość** | profil agenta: imię/rola/ID, sektory, granice; weryfikowalny przy starcie (profil-check — lekcja misfire) | `instancja/agenci/<imię>/profil.yml` + rejestr kluczy instancji; przy starcie sesji: przedstaw się i zweryfikuj z rejestrem |
 | 2 | **Skills** | metoda + dziennik + protokoły (forum, restart, zamykanie) dostępne agentowi; osobno: skille instancji (per-projekt) | skills-mount: `skills/` formatki + skille instancji; konfiguracja ładuje oba zbiory |
 | 3 | **Klucze sektorów** | dostęp do HARD sektorów per rola (RBAC repo/klucz); zero sekretów w gicie | ssh-config/git-remote per rola na klucz z katalogu kluczy (wskaźnik ścieżki, nigdy sam klucz) |
 | 4 | **Tracker zadań** | wskaźnikowy, per agent; trzyma pointery do węzłów, nie kopie rozumowania | jedno bd per agent (decyzja operatora instancji) |
@@ -31,17 +31,22 @@ Omp (oh-my-pi) jako domyślny system agentyczny. Konfiguracja per agent w **inst
 instancja/
 ├── formatka/            # submodule (pin-sha) — substrat, nie ruszany przez adapter
 ├── agenci/
-│   └── <imie>/          # per-agent config:
+│   └── <agent_slug>/   # per-agent config:
 │       ├── profil.yml   #   tożsamość: rola, sektory, granice (wskaźniki)
+│       ├── tozsamosc/   #   mandat, granice i dziennik agenta
+│       │   ├── o-mnie.md
+│       │   └── dziennik.md
 │       ├── skills/      #   skills-mount: -> formatka/skills + instancja/skille
+│       ├── .beads/      #   lokalny tracker z trzema neutralnymi zadaniami pierwszego dyżuru
 │       ├── ssh-config   #   klucz roli: Host gitolite → IdentityFile <ścieżka klucza>
-│       └── watcher.env  #   WATCH_ROLE/WATCH_DOMAINS (kanal koordynacji)
+│       └── watcher.env  #   WATCH_ROLE/WATCH_DOMAINS (kanał koordynacji)
 └── rejestr-kluczy.md    # role → fingerprint (kotwica integralności)
-```
 
 - **Odpalenie agenta:** `omp` z profilem → wstaje tożsamość + skills + klucze + tracker; sektory dostępne przez git-remote na kluczu roli.
-- **Budowa workspace agenta (strona klienta):** `tools/workspace-builder.sh <manifest> <imię> <rola>` tworzy `agenci/<imię>/` (profil.yml, skills-mount, ssh-config, watcher.env) + klonuje sektory dostępne dla roli na jej kluczu + verify-pozytyw. Windows: `tools/start.bat agent <manifest> <imię> <rola>` (auto-routing do WSL — zamyka gap#5).
-- **Zero sekretów w gicie:** klucze żyją poza repo (katalog kluczy, perms 600); w gicie tylko wskaźnik ścieżki i fingerprint.
+- **Budowa workspace agenta (strona klienta):** `tools/workspace-builder.sh <manifest> <agent_slug> <agent_id> <rola>` tworzy `agenci/<agent_slug>/` (profil.yml, skills-mount, `.beads/`, ssh-config, watcher.env) + klonuje sektory dostępne dla roli na jej kluczu + verify-pozytyw. `agent_slug` jest walidowany przed utworzeniem katalogu; `agent_id` jest prywatnym identyfikatorem w profilu/tożsamości. Windows: `tools/start.bat agent <manifest> <agent_slug> <agent_id> <rola>` (auto-routing do WSL — zamyka gap#5).
+- **Tracker:** workspace-builder tworzy lokalny, bezremote’owy Git-root workspace (`.git/`), którego Beads wymaga do własnego `.beads/`; oba pozostają runtime-only. Następnie uruchamia `bd init --non-interactive --init-if-missing --prefix <agent_id> --stealth` z katalogu workspace, a każde `show`/`create` uruchamia z tego samego katalogu — tracker pozostaje lokalny w `<workspace>/.beads`. Seeduje trzy lokalne beady pierwszego dyżuru: profil-check, przeczytanie metody+dziennika oraz potwierdzenie mandatu/granic z wyborem bezpiecznego zakresu. Seed ma deterministyczne lokalne ID `<agent_id>-<seed>`; przed `create` builder sprawdza je przez `bd show`, więc retry po awarii między trwałym create a markerem nie tworzy duplikatu. Osobny marker każdego seeda w `.beads/` skraca kolejne re-run. Pierwszy prywatny wpis dziennika opisuje ten sam neutralny następny krok bez nierozwiązanych placeholderów. Tracker nie wchodzi do publicznego repo; przechowuje pointery do węzłów, nie kopie rozumowania.
+- **Wzorzec tożsamości:** publiczne `templates/agenta/` daje neutralne profile/dziennik; private `agent_id` jest renderowany lokalnie i nie należy do publicznej formatki.
+- **Zero sekretów w gicie:** klucze żyją poza repo (katalog kluczy, perms 600); w gicie tylko wskaźnik ścieżki i fingerprint. `.beads/` nie jest materiałem do commitowania ani synchronizacji repo.
 - **Attribution:** README formatki podaje podstawę na Omp (uczciwe źródło) — patrz README §Podstawa.
 
 ## 4. Jak dodać drugi adapter (np. inny harness)

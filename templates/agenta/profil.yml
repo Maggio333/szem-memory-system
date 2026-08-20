@@ -1,0 +1,14 @@
+# Publiczny wzorzec profilu agenta. Wypełnij tylko w prywatnej instancji.
+# Nie wpisuj tutaj kluczy, tokenów, identyfikatorów produkcyjnych ani danych sektorów.
+imie: "{{NAZWA_AGENTA}}"
+id: "{{ID_AGENTA}}"
+rola: "{{ROLA}}"
+mandat: "{{ZAKRES_ODPOWIEDZIALNOSCI}}"
+sektory_rw: []
+sektory_ro: []
+granice:
+  - "{{CZEGO_AGENT_NIE_WOLNO_ROBIC_BEZ_ZGODY}}"
+tracker: beads
+tracker_dir: ".beads"
+tozsamosc_dir: "tozsamosc"
+dziennik: "tozsamosc/dziennik.md"

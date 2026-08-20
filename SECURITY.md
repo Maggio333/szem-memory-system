@@ -15,7 +15,7 @@
 - Repo przenosi wyłącznie **fingerprinty** (kotwica integralności) i **wskaźniki ścieżek**.
 - Manifest instancji jest source-owany jako root — trzymaj poza publiczną formatką, w zaufanym miejscu.
 - Rewokacja dostępu = usunięcie klucza roli z gitolite: O(1), bez rewritu historii.
-- **Scrub-gate jest mechaniczny, nie umowny:** `tools/scrub-gate.sh` (grep rejestru wrażliwych etykiet; fail-closed bez rejestru) instalowany jako `pre-push` w klonie strefy publicznej. **Rejestr żyje w prywatnej instancji** (sam zawiera wrażliwe etykiety); klasy obowiązkowe w komentarzu skryptu — w tym formy odmienione i prefiksy id trackera.
+- **Scrub-gate jest mechaniczny, nie umowny:** `tools/scrub-gate.sh` (grep prywatnego rejestru wrażliwych etykiet; fail-closed bez rejestru) instalowany jako `pre-push` w klonie strefy publicznej skanuje nowe reachable bloby z zakresu każdego update'u refa, nie tylko bieżący HEAD. **Rejestr żyje w prywatnej instancji** (sam zawiera wrażliwe etykiety); klasy obowiązkowe w komentarzu skryptu — w tym formy odmienione i prefiksy id trackera.
 
 ## Zgłaszanie podatności
 Preferowane: **GitHub Security Advisories** (Report a vulnerability) tego repozytorium.

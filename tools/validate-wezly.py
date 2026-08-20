@@ -50,7 +50,7 @@ def parse_frontmatter(text):
 def _selftest():
     # samo-weryfikacja tool-a (CI): fixture w pamieci -> tmp -> main() -> sprawdz wynik.
     import tempfile
-    def nd(t,i,st="aktywny",par="[]",au="Latarnik",body="tresc"):
+    def nd(t,i,st="aktywny",par="[]",au="public",body="tresc"):
         a=f"author: {au}\n" if au else ""
         return f"---\ntype: {t}\nid: {i}\ntitle: T\nstatus: {st}\nparents: {par}\n{a}date: 2026-08-20\ncreated_at: 2026-08-20\n---\n{body}\n"
     valid={"cel.md":nd("cel","T-C1",body="kryterium falsyfikowalne X<5; zakres Y"),
