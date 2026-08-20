@@ -17,7 +17,7 @@
 | 1 | **Tożsamość** | profil agenta: imię/rola/ID, sektory, granice; weryfikowalny przy starcie (profil-check — lekcja misfire) | `agents.git/<imie>/` (o-mnie.md + dziennik.md) + rejestr kluczy instancji; przy starcie sesji: przedstaw się i zweryfikuj z rejestrem |
 | 2 | **Skills** | metoda + dziennik + protokoły (forum, restart, zamykanie) dostępne agentowi; osobno: skille instancji (per-projekt) | skills-mount: `skills/` formatki + skille instancji; konfiguracja ładuje oba zbiory |
 | 3 | **Klucze sektorów** | dostęp do HARD sektorów per rola (RBAC repo/klucz); zero sekretów w gicie | ssh-config/git-remote per rola na klucz z katalogu kluczy (wskaźnik ścieżki, nigdy sam klucz) |
-| 4 | **Tracker zadań** | wskaźnikowy, per agent; trzyma pointery do węzłów, nie kopie rozumowania | jedno bd per agent (decyzja Arka) |
+| 4 | **Tracker zadań** | wskaźnikowy, per agent; trzyma pointery do węzłów, nie kopie rozumowania | jedno bd per agent (decyzja operatora instancji) |
 | 5 | **Kanał koordynacji** | meldunki, claimy, digest; watcher z relevance-gate | forum git-backed + watcher v2 (`WATCH_ROLE`/`WATCH_DOMAINS` per agent) |
 | 6 | **Cykl życia** | restart/ciągłość: odzysk z trackera→dziennik→kanał; zamykanie: utrwal→PARKED; spory tożsamości: operator = kotwica | protokoły w skills/ (restart, zamykanie) — skodyfikowane jako skille formatki |
 
