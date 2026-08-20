@@ -7,6 +7,7 @@
 # nie w skrypcie — zero tresci instancji tutaj.
 #
 # Uzycie:   sudo bash bootstrap-instancji.sh <manifest.conf>
+# UWAGA-SEC: manifest jest SOURCE-owany jako root = kod wykonywalny. Tylko z zaufanego zrodla/po review.
 # Wymaga:   Linux/WSL, root (dla useradd/apt), git, python3; apt: gitolite3 openssh-server.
 # Idempotent: powtorne uruchomienie nie duplikuje (user/klucze/repo tworzone tylko gdy brak).
 #
@@ -62,7 +63,7 @@ ensure_gitolite() {
   ss -tlnp 2>/dev/null | grep -q ':22 ' || log "UWAGA: sshd :22 nie nasluchuje — sprawdz recznie"
 }
 
-GSSH="ssh -i $ADMIN_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+GSSH="ssh -i $ADMIN_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null"
 gclone(){ GIT_SSH_COMMAND="$GSSH" git clone -q "$GITOLITE_USER@$INSTANCE_HOST:$1" "$2"; }
 gpush(){ GIT_SSH_COMMAND="$GSSH" git -C "$1" push -q origin master; }
 
@@ -156,7 +157,7 @@ verify() {
       [ "$granica" = "HARD" ] || continue
       case " $rw $r " in *" $role "*) [ -z "$own" ] && own="$name" ;; *) [ -z "$other" ] && other="$name" ;; esac
     done
-    local ks="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    local ks="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null"
     if [ -n "$own" ]; then GIT_SSH_COMMAND="$ks" git clone -q "$GITOLITE_USER@$INSTANCE_HOST:$own" "$WORK/vp-$role" 2>/dev/null \
        && log "  [OK]  $role -> $own" || { log "  [FAIL-pozytyw] $role -> $own"; fail=1; }; fi
     if [ -n "$other" ]; then GIT_SSH_COMMAND="$ks" git clone -q "$GITOLITE_USER@$INSTANCE_HOST:$other" "$WORK/vn-$role" 2>/dev/null \
