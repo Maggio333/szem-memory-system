@@ -44,9 +44,11 @@ Wypełnij w `moja-instancja.conf`:
 - `FORMATKA_URL` — ścieżka/URL do Twojego `szem.git` (to samo źródło co w kroku 1),
 - `ROLES` — role Twojej instancji (np. `perf infra deploy`),
 - `SECTORS` — wiersze `nazwa|HARD/SOFT|role-RW|role-R`,
-- `META_READERS` — kto czyta meta-repo.
+- `META_READERS` — kto czyta meta-repo,
+- `AGENT_KEYS_DIR` — gdzie lądują klucze ról (domyślnie `/srv/szem/agent-keys`); **musi być czytelny dla usera uruchamiającego `workspace-builder`** — NIE `/root` (perms 700 → nie-root nie odczyta),
+- `AGENT_OS_USER` — user OS uruchamiający agentów/`workspace-builder` (nie-root): bootstrap **chownuje** mu klucze. Puste = agent jako root (WSL-default).
 
-Manifest jest source-owany jako **root** — trzymaj w zaufanym miejscu, **nigdy** w publicznym repo.
+Manifest jest **parsowany** bezpiecznym whitelist-parserem (`tools/lib-manifest.sh` — nie wykonywany jako kod) — ale i tak trzymaj w zaufanym miejscu, **nigdy** w publicznym repo (niesie nazwy ról/sektorów).
 
 ### 3. Postaw instancję (serwer: gitolite + sektory + klucze ról)
 
@@ -78,7 +80,7 @@ Meta-repo instancji (README + `rejestr-kluczy.md` + pin formatki) = RW tylko adm
 - **Linux/WSL:** `bash tools/workspace-builder.sh ../moja-instancja.conf <imię> <rola>`
 
 `<rola>` musi być jedną z `ROLES` manifestu (mapuje na klucz roli i dostęp do sektorów).
-Nie-root; idempotentne (istniejący klon = pomija).
+**Nie-root:** jeśli `workspace-builder` uruchamia user-agenta (nie root), ustaw w manifeście `AGENT_OS_USER=<ten-user>` (bootstrap chownuje mu klucze) + `AGENT_KEYS_DIR` poza `/root`. Jako root (WSL-default) — `AGENT_OS_USER` puste. Idempotentne (istniejący klon = pomija).
 
 ✅ **Sukces:** `WORKSPACE <imię> GOTOWY: instancja/agenci/<imię>`
 
