@@ -18,6 +18,9 @@ Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (
 
 **Start:** [`QUICKSTART.md`](QUICKSTART.md) — od `git clone` do działającej instancji z agentem w 6 krokach.
 
+## Publiczny przykład
+[`examples/atlas-zgloszen/`](examples/atlas-zgloszen/) pokazuje **cztery jawnie fikcyjne persony** (`Monter01`, `Hart01`, `Latarnik01`, `Wartownik01`) oraz kompletną nitkę w układzie Obsidianowym: Cel → Teza ↔ Antyteza → Synteza → ADR → Ewaluacja. To materiał dydaktyczny: nie jest instancją, nie przyznaje dostępu, a wszystkie role, zakresy i dane są syntetyczne. Czytaj od [`examples/atlas-zgloszen/README.md`](examples/atlas-zgloszen/README.md).
+
 ## Metoda (rdzeń)
 Substrat jest nośnikiem **metody**: każde twierdzenie z metryką przechodzi 4 bramki (0 logiczno-definicyjna · 1 epistemiczna · 2 empiryczna · 3 na ramę), a sposób myślenia pilnowany jest **[katalogiem 12 grzechów rozumowania](docs/grzechy-rozumowania.md)** — każdy grzech to antyteza-objaw, synteza i test, który łapiesz u samego siebie. Pełna metoda: `skills/metoda.md`; ślad pracy: `skills/dziennik.md`.
 
