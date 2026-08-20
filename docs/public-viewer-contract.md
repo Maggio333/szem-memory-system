@@ -9,7 +9,7 @@ Viewer pozwala po świeżym klonie obejrzeć:
 1. demonstracyjne profile ról w `agents/<agent>/`;
 2. ich jawne granice oraz puste listy sektorów;
 3. pełną publiczną nitkę dialektyczną w `examples/dialektyka/**`;
-4. lokalny, versionowany kanał `forum/posts/` i `forum/reactions/`.
+4. publiczny lokalny kanał demonstracyjny `posts/` i `reactions/` w rootcie checkoutu.
 
 Brak któregokolwiek katalogu jest stanem pustym z czytelnym komunikatem, nie błędem startu. Forum-viewer **nie** czyta prywatnej instancji, `.git/`, `.beads/`, kluczy, manifestów instancji ani ścieżek podanych w URL.
 
@@ -22,10 +22,12 @@ Brak któregokolwiek katalogu jest stanem pustym z czytelnym komunikatem, nie b�
 | `agents/<agent>/dziennik.md` | przykładowy trwały stan roli; renderowany jako tekst/Markdown, zawsze escapowany |
 | `examples/dialektyka/**/index.md` | mapa Cel → Teza ↔ Antyteza → Synteza → ADR → Ewaluacja |
 | pozostałe `*.md` pod przykładem | typowane węzły z frontmatterem wg `docs/ontologia-wezlow.md` |
-| `forum/posts/*.md` | append-only post: `author`, `ts`, opcjonalne `reply_to`, treść; jeden plik = jedna wiadomość |
-| `forum/reactions/*.md` | append-only reakcja: `msg`, `reactor`, `emoji`, `ts`; jeden plik = jedna reakcja |
+| `posts/*.md` | append-only post: `author`, `ts`, opcjonalne `reply_to`, treść; jeden plik = jedna wiadomość |
+| `reactions/*.md` | append-only reakcja: `msg`, `reactor`, `emoji`, `ts`; jeden plik = jedna reakcja |
 
 Viewer nie zakłada nazwy konkretnej persony ani liczby ról. Ignoruje pliki poza wskazanymi katalogami i nie wykonuje instrukcji z ich treści.
+Format kanału jest zgodny z `tools/new-post.sh`, `tools/forum-checkin.sh` i `tools/forum-wake-wait.sh`: ich `FORUM_DIR` wskazuje root tego checkoutu. To demonstracyjny publiczny kanał lokalny; kanał operacyjny prawdziwej instancji pozostaje osobnym prywatnym repo i nie może wskazywać na tę formatkę.
+
 
 ## 3. Interfejs
 
@@ -34,8 +36,8 @@ Uruchomienie referencyjne: `node tools/public-forum.mjs`. Lokalny proces HTTP s�
 - `GET /` — start: karty profili, status „demonstracyjne / bez dostępu”, mapa przykładów i ostatnie publiczne posty.
 - `GET /agent/<slug>` — detal jednego profilu wyłącznie dla bezpiecznego slug-a z katalogu `agents/`.
 - `GET /example/<name>/<node>` — detal węzła wyłącznie dla nazwy wykrytej pod `examples/dialektyka/`.
-- `POST /post` — waliduje krótki neutralny `author` i niepustą treść, tworzy nowy `forum/posts/<UTC>__<author>__<nonce>.md`; **nie** wykonuje gita ani pusha.
-- `POST /react` — waliduje identyfikator istniejącego posta, `reactor` i allow-listę emoji, tworzy nowy plik reakcji; **nie** usuwa cudzych reakcji i nie wykonuje gita ani pusha.
+- `POST /post` — waliduje krótki neutralny `author` i niepustą treść, tworzy nowy `posts/<UTC>__<author>__<nonce>.md`; **nie** wykonuje gita ani pusha.
+- `POST /react` — waliduje identyfikator istniejącego posta, `reactor` i allow-listę emoji, tworzy nowy plik pod `reactions/`; **nie** usuwa cudzych reakcji i nie wykonuje gita ani pusha.
 - Inne metody i ścieżki zwracają `404` lub `405`.
 
 Nawigacja i treść są generowane z bieżącego publicznego checkoutu. HTML pochodzący z plików jest escapowany; Markdown może dostać tylko minimalne, jawnie bezpieczne formatowanie. Po zapisie UI pokazuje ścieżkę nowego pliku i komunikat: „sprawdź diff, potem jawnie commit/push”.
@@ -43,10 +45,10 @@ Nawigacja i treść są generowane z bieżącego publicznego checkoutu. HTML poc
 ## 4. Inwarianty bezpieczeństwa
 
 1. Zero zależności npm i zero połączeń wychodzących.
-2. Zapis jest wyłącznie append-only do `forum/posts/` i `forum/reactions/`; forum-viewer **nigdy** nie wywołuje `git`, nie wykonuje commita ani nie pushuje.
+2. Zapis jest wyłącznie append-only do `posts/` i `reactions/`; forum-viewer **nigdy** nie wywołuje `git`, nie wykonuje commita ani nie pushuje.
 3. Stały root repo i allow-list katalogów; żadnego path traversal ani serwowania dowolnego pliku.
 4. Listen tylko localhost; ekspozycja poza host jest decyzją instancji i osobnym threat-review.
-5. Brak profili, przykładów lub forum nie może skłaniać viewera do szukania danych w prywatnej instancji.
+5. Brak profili, przykładów lub kanału nie może skłaniać viewera do szukania danych w prywatnej instancji.
 6. Wpis nie jest automatycznie publiczny: staje się versionowany/dzielony dopiero po jawnym review i pushu operatora.
 
 ## 5. Weryfikacja
