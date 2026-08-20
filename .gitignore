@@ -1,0 +1,19 @@
+# Runtime / lokalne
+*.log
+*.tmp
+.env
+.env.*
+!.env.example
+
+# OS / edytory
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# Sekrety / prywatne — NIGDY do strefy publicznej
+*.key
+*.pem
+id_ed25519*
+secrets.*
