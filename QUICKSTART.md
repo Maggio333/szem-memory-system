@@ -93,7 +93,7 @@ Powstaje `instancja/agenci/<imię>/`:
 
 ```
 . instancja/agenci/<imię>/watcher.env
-GIT_SSH_COMMAND="ssh -F instancja/agenci/<imię>/ssh-config"
+export GIT_SSH_COMMAND="ssh -F instancja/agenci/<imię>/ssh-config"
 omp --profile=<imię> --cwd=instancja/agenci/<imię> --append-system-prompt=instancja/agenci/<imię>/profil.yml
 ```
 
