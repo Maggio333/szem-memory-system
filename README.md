@@ -21,3 +21,6 @@ Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (
 ## Podstawa
 Domyślny system agentyczny formatki to **[Omp (oh-my-pi)](https://github.com/can1357/oh-my-pi)** — na nim stoi warstwa adaptera (`docs/adapter-omp.md`). Szem bazuje na ekosystemie Ompa: to jego konfiguracja i narzędzia uruchamiają agentów w naszych instancjach. Doceniamy tę pracę i chętnie wspieramy ekosystem Ompa w ramach naszych systemów agentycznych — zgłoszenia, poprawki i integracje wracają do projektu.
 Substrat jest od harnessu niezależny: system agentyczny można przepiąć, spełniając kontrakt adaptera (§2 tamże).
+
+## Licencja
+[Apache-2.0](LICENSE) — używaj, forkuj, integruj; wymagane zachowanie noty licencyjnej.
