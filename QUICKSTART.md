@@ -94,11 +94,26 @@ Powstaje `instancja/agenci/<imię>/`:
 ```
 . instancja/agenci/<imię>/watcher.env
 GIT_SSH_COMMAND="ssh -F instancja/agenci/<imię>/ssh-config"
-# odpal harness z profilem: instancja/agenci/<imię>/profil.yml
+omp --profile=<imię> --cwd=instancja/agenci/<imię> --append-system-prompt=instancja/agenci/<imię>/profil.yml
 ```
 
 Przy starcie sesji: **profil-check** — agent przedstawia się i weryfikuje wg `rejestr-kluczy.md`
 (kanoniczność = operator faktycznie prowadzący sesję).
+
+### 5b. Wielu agentów naraz (multi-agent)
+
+Wzorzec: **jeden pane = jeden agent = jeden workspace**. Krok 4 raz per agenta (`<imię> <rola>` z `ROLES`), potem w każdym panelu (split cmd / tmux) krok 5 z workspace'em tego agenta.
+
+Goły `omp` ×N dzieli JEDEN profil konta OS (`~/.omp/agent/`: auth, sesje, cache) → kolizje. Izolacja per-agent = **`--profile=<imię>`** (relokuje bazę do `~/.omp/profiles/<imię>/agent/` — auth/sesje/ustawienia/stan osobne):
+
+```
+# pane 1:
+omp --profile=A --cwd=instancja/agenci/A --append-system-prompt=instancja/agenci/A/profil.yml
+# pane 2 (analogicznie 3, 4, ...):
+omp --profile=B --cwd=instancja/agenci/B --append-system-prompt=instancja/agenci/B/profil.yml
+```
+
+Izolację **sektorów** między panelami egzekwuje gitolite (klucz roli w `ssh-config`/`GIT_SSH_COMMAND`), nie terminal: agent A nie sklonuje sektorów agenta B (`[DENY]`), nawet na tej samej maszynie. **Nie współdziel working copy między agentami** (race na checkout/branch) — wspólne są tylko remote'y (gitolite) i kanał koordynacji.
 
 ### 6. Klucz prywatny roli
 
