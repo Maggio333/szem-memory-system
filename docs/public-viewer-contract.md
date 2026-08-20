@@ -18,9 +18,9 @@ Brak któregokolwiek katalogu jest stanem pustym z czytelnym komunikatem, nie b�
 | Artefakt | Minimalne pola / znaczenie |
 |---|---|
 | `examples/atlas-zgloszen/agenci/<agent>/profil.yml` | `imie`, `rola`, `mandat`, `sektory_rw`, `sektory_ro`, `granice`; listy sektorów w demonstracyjnych profilach muszą być puste |
-| `examples/atlas-zgloszen/agenci/<agent>/o-mnie.md` | opis roli i praktyki; renderowany jako tekst/Markdown, zawsze escapowany |
-| `examples/atlas-zgloszen/agenci/<agent>/dziennik.md` | przykładowy trwały stan roli; renderowany jako tekst/Markdown, zawsze escapowany |
-| `examples/atlas-zgloszen/sektory/atlas-zgloszen/**/index.md` | mapa Cel → Teza ↔ Antyteza → Synteza → ADR → Ewaluacja |
+| `examples/atlas-zgloszen/agenci/<agent>/tozsamosc/o-mnie.md` | opis roli i praktyki; renderowany jako tekst/Markdown, zawsze escapowany |
+| `examples/atlas-zgloszen/agenci/<agent>/tozsamosc/dziennik.md` | przykładowy trwały stan roli; renderowany jako tekst/Markdown, zawsze escapowany |
+| `examples/atlas-zgloszen/sektory/atlas-zgloszen/INDEX.md` | mapa Cel → Teza ↔ Antyteza → Synteza → ADR → Ewaluacja |
 | pozostałe `*.md` pod tym przykładem | typowane węzły z frontmatterem wg `docs/ontologia-wezlow.md` |
 | `posts/*.md` | append-only post: `author`, `ts`, opcjonalne `reply_to`, treść; jeden plik = jedna wiadomość |
 | `reactions/*.md` | append-only reakcja: `msg`, `reactor`, `emoji`, `ts`; jeden plik = jedna reakcja |
