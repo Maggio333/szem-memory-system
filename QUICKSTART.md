@@ -12,7 +12,7 @@ Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z wł
 - **Windows + WSL** (zalecane Ubuntu 24.04) **lub** natywny Linux.
 - W WSL/Linux: `git`, `python3`.
 - **System agentyczny (harness)** — domyślnie **Omp (oh-my-pi)**: `omp --version` musi działać (instalacja wg dokumentacji projektu Omp; jeśli brak — zainstaluj najpierw, zanim przejdziesz do kroku 5).
-- **Tracker zadań** — domyślnie **beads**: `bd --version` musi działać (analogicznie — instalacja wg dokumentacji; tracker jest wskaźnikowy, każdy agent ma własne).
+- **Tracker zadań** — domyślnie **Beads**: `bd --version` musi działać. Builder uruchamia `bd init` lokalnie per agent; nie ustawiaj wspólnego/globalnego trackera.
 - Do kroku 3 (`setup`, jednorazowo): **root** — `gitolite3` + `openssh-server` instalują się same (`apt`).
 - Domyślna dystrybucja WSL bez `sudo`/`apt`? Ustaw `SZEM_WSL_DISTRO=Ubuntu-24.04` (widzi je `start.bat`).
 
@@ -21,8 +21,8 @@ Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z wł
 | Katalog | Co zawiera |
 |---|---|
 | `docs/` | Mechanika: model dostępu, sector-contract, ontologia węzłów, enforcement-runbook |
-| `skills/` | Generyczna metoda + dziennik pracy (odinstancjonowane) |
-| `templates/` | Szablony: `wezly/*` (typy węzłów), sektor-README, matryca-RBAC, struktura-instancji |
+| `skills/` | Generyczna metoda, dziennik pracy i cykl życia agenta (Beads, claim, handoff) |
+| `templates/` | Szablony: `wezly/*` (typy węzłów), sektor-README, matryca-RBAC, struktura-instancji, neutralny agent (`agenta/`) |
 | `tools/` | `bootstrap-instancji.sh` (serwer), `workspace-builder.sh` (klient), `start.bat` (Windows-entry), `forum-watch.sh` (watcher), `instance-manifest.example.conf` |
 
 ## Kroki
@@ -76,27 +76,38 @@ Meta-repo instancji (README + `rejestr-kluczy.md` + pin formatki) = RW tylko adm
 
 ### 4. Zbuduj workspace agenta (klient: profil + dostęp + watcher)
 
-- **Windows:** `tools\start.bat agent ..\moja-instancja.conf <imię> <rola>`
-- **Linux/WSL:** `bash tools/workspace-builder.sh ../moja-instancja.conf <imię> <rola>`
+- **Windows:** `tools\start.bat agent ..\moja-instancja.conf <agent_slug> <agent_id> <rola>`
+- **Linux/WSL:** `bash tools/workspace-builder.sh ../moja-instancja.conf <agent_slug> <agent_id> <rola>`
 
-`<rola>` musi być jedną z `ROLES` manifestu (mapuje na klucz roli i dostęp do sektorów).
+`<agent_slug>` to bezpieczna nazwa katalogu/profilu (`[A-Za-z0-9][A-Za-z0-9_-]*`); nie może zawierać separatora, `..` ani nowej linii. `<agent_id>` to prywatny, stabilny identyfikator zapisany w `profil.yml` i tożsamości agenta. `<rola>` musi być jedną z `ROLES` manifestu (mapuje na klucz roli i dostęp do sektorów).
 **Nie-root:** jeśli `workspace-builder` uruchamia user-agenta (nie root), ustaw w manifeście `AGENT_OS_USER=<ten-user>` (bootstrap chownuje mu klucze) + `AGENT_KEYS_DIR` poza `/root`. Jako root (WSL-default) — `AGENT_OS_USER` puste. Idempotentne (istniejący klon = pomija).
 
-✅ **Sukces:** `WORKSPACE <imię> GOTOWY: instancja/agenci/<imię>`
+✅ **Sukces:** `WORKSPACE <agent_slug> GOTOWY: instancja/agenci/<agent_slug>`
 
-Powstaje `instancja/agenci/<imię>/`:
-- `profil.yml` — tożsamość (wskaźniki, nigdy sekrety),
+Powstaje `instancja/agenci/<agent_slug>/`:
+- `profil.yml` — tożsamość (wskaźniki, nigdy sekrety), z `tracker: beads`,
+- `tozsamosc/o-mnie.md` + `tozsamosc/dziennik.md` — mandat, granice i trwały stan agenta,
+- `.beads/` — lokalny tracker Dolt z trzema neutralnymi beadami pierwszego dyżuru: profil-check, metoda+dziennik, mandat+bezpieczny zakres; **nie commituj i nie synchronizuj**,
 - `ssh-config` — remote git na kluczu roli,
 - `watcher.env` — `WATCH_ROLE` + `WATCH_DOMAINS` dla tej roli,
-- `skills/` — mount `formatka/skills` + skille instancji,
+- `skills/` — mount `formatka/skills` + skille instancji (w tym lifecycle skill),
 - sklonowane sektory dostępne dla roli.
+
+Po zbudowaniu przejmij lokalne beady w kolejności: profil-check, metoda+dziennik, potem potwierdzenie mandatu/granic i wybór pierwszego bezpiecznego zakresu:
+
+```bash
+bd --db instancja/agenci/<agent_slug>/.beads prime
+bd --db instancja/agenci/<agent_slug>/.beads ready
+```
+
+Seed i pierwszy wpis dziennika są celowo neutralne: nie zawierają zadań, ludzi, ID ani danych instancji. Re-run nie dubluje seedów ani nie nadpisuje dziennika. Beads trzyma zadania i pointery operacyjne. Rozumowanie, dowody i wnioski zapisuj w vault; nie kopiuj ich do `.beads/`.
 
 ### 5. Uruchom agenta (adapter-Omp)
 
 ```
-. instancja/agenci/<imię>/watcher.env
-export GIT_SSH_COMMAND="ssh -F instancja/agenci/<imię>/ssh-config"
-omp --profile=<imię> --cwd=instancja/agenci/<imię> --append-system-prompt=instancja/agenci/<imię>/profil.yml
+. instancja/agenci/<agent_slug>/watcher.env
+export GIT_SSH_COMMAND="ssh -F instancja/agenci/<agent_slug>/ssh-config"
+omp --profile=<agent_slug> --cwd=instancja/agenci/<agent_slug> --append-system-prompt=instancja/agenci/<agent_slug>/profil.yml
 ```
 
 Przy starcie sesji: **profil-check** — agent przedstawia się i weryfikuje wg `rejestr-kluczy.md`
@@ -104,9 +115,9 @@ Przy starcie sesji: **profil-check** — agent przedstawia się i weryfikuje wg 
 
 ### 5b. Wielu agentów naraz (multi-agent)
 
-Wzorzec: **jeden pane = jeden agent = jeden workspace**. Krok 4 raz per agenta (`<imię> <rola>` z `ROLES`), potem w każdym panelu (split cmd / tmux) krok 5 z workspace'em tego agenta.
+Wzorzec: **jeden pane = jeden agent = jeden workspace**. Krok 4 raz per agenta (`<agent_slug> <agent_id> <rola>` z `ROLES`), potem w każdym panelu (split cmd / tmux) krok 5 z workspace'em tego agenta.
 
-Goły `omp` ×N dzieli JEDEN profil konta OS (`~/.omp/agent/`: auth, sesje, cache) → kolizje. Izolacja per-agent = **`--profile=<imię>`** (relokuje bazę do `~/.omp/profiles/<imię>/agent/` — auth/sesje/ustawienia/stan osobne):
+Goły `omp` ×N dzieli JEDEN profil konta OS (`~/.omp/agent/`: auth, sesje, cache) → kolizje. Izolacja per-agent = **`--profile=<agent_slug>`** (relokuje bazę do `~/.omp/profiles/<agent_slug>/agent/` — auth/sesje/ustawienia/stan osobne):
 
 ```
 # pane 1:
