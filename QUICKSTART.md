@@ -1,7 +1,7 @@
 # Szem — Quickstart
 
 Od `git clone` do działającej instancji Szem z jednym agentem, w 6 krokach.
-Wszystko poniżej to **wzorzec** (zero-ODS) — dane bierzesz z własnego manifestu.
+Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z własnego manifestu.
 
 > **GDZIE URUCHAMIAĆ:** narzędzia (`bootstrap-instancji.sh`, `workspace-builder.sh`)
 > działają **tylko w WSL/Linux**. Na Windows odpalaj przez `tools\start.bat` — routuje do WSL.
