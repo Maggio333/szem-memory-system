@@ -23,4 +23,4 @@ Domyślny system agentyczny formatki to **[Omp (oh-my-pi)](https://github.com/ca
 Substrat jest od harnessu niezależny: system agentyczny można przepiąć, spełniając kontrakt adaptera (§2 tamże).
 
 ## Licencja
-[Apache-2.0](LICENSE) — używaj, forkuj, integruj; wymagane zachowanie noty licencyjnej.
+Copyright © 2026 Arkadiusz Słota. Licencja: [Apache-2.0](LICENSE) — używaj, forkuj, integruj; wymagane zachowanie noty licencyjnej i informacji o prawach autorskich.
