@@ -13,7 +13,7 @@
 #
 # KRYTYCZNE zalozenia (z lekcji nocy):
 #  - gitolite na DEDYKOWANYM userze (przejmuje jego authorized_keys) — NIGDY na load-bearing userze.
-#  - repos na natywnym ext4 (home usera), NIE /mnt/c (9P zabija git many-small-files) — perf-flag Harta.
+#  - repos na natywnym ext4 (home usera), NIE /mnt/c (9P zabija git many-small-files) — znany perf-killer (many-small-files na 9P).
 #  - localhost-first: sshd bez ekspozycji LAN; portproxy/LAN to osobna, swiadoma decyzja + threat-review.
 set -euo pipefail
 
