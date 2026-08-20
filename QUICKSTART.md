@@ -58,6 +58,18 @@ INSTANCJA <META_REPO> GOTOWA (localhost-first). Klucze rol: <AGENT_KEYS_DIR>/*/i
 ```
 Każda rola klonuje SWÓJ sektor (`[OK]`), cudzy jest odmówiony (`[DENY]`) — to jest hard-RBAC działający.
 
+### 3b. Zaczep INSTANCE_DIR — submodule formatki
+
+Zanim zbudujesz agenta, utwórz katalog instancji (`INSTANCE_DIR` z manifestu) z **submodule formatki** — inaczej `workspace-builder` zbuduje agenta, ale `skills/` będzie **pusty** (ostrzeże: `UWAGA: brak instancja/formatka/skills`). Wzorzec (`templates/struktura-instancji.md` → „Minimalna instancja"):
+
+```
+mkdir -p instancja && cd instancja
+git -c protocol.file.allow=always submodule add <FORMATKA_URL> formatka   # pin-sha, nie branch; flaga tylko dla file://
+cd ..
+```
+
+Meta-repo instancji (README + `rejestr-kluczy.md` + pin formatki) = RW tylko admin; agent-role = R (pin formatki niepisywalny przez agenta).
+
 ### 4. Zbuduj workspace agenta (klient: profil + dostęp + watcher)
 
 - **Windows:** `tools\start.bat agent ..\moja-instancja.conf <imię> <rola>`
