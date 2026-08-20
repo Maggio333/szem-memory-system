@@ -22,8 +22,14 @@ Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (
 Substrat jest nośnikiem **metody**: każde twierdzenie z metryką przechodzi 4 bramki (0 logiczno-definicyjna · 1 epistemiczna · 2 empiryczna · 3 na ramę), a sposób myślenia pilnowany jest **[katalogiem 12 grzechów rozumowania](docs/grzechy-rozumowania.md)** — każdy grzech to antyteza-objaw, synteza i test, który łapiesz u samego siebie. Pełna metoda: `skills/metoda.md`; ślad pracy: `skills/dziennik.md`.
 
 ## Podstawa
-Domyślny system agentyczny formatki to **[Omp (oh-my-pi)](https://github.com/can1357/oh-my-pi)** — na nim stoi warstwa adaptera (`docs/adapter-omp.md`). Szem bazuje na ekosystemie Ompa: to jego konfiguracja i narzędzia uruchamiają agentów w naszych instancjach. Doceniamy tę pracę i chętnie wspieramy ekosystem Ompa w ramach naszych systemów agentycznych — zgłoszenia, poprawki i integracje wracają do projektu.
-Substrat jest od harnessu niezależny: system agentyczny można przepiąć, spełniając kontrakt adaptera (§2 tamże).
+Szem jest **harness-agnostyczny**: formatka działa pod dowolny system agentyczny, wpięty przez warstwę adaptera (`docs/adapter-omp.md`, kontrakt §2). Substratu (pamięć + metoda) nie wiążemy z jednym harnessem.
+
+**Dedykujemy jednak pierwszeństwo inicjatywom, które wspieramy — obecnie [Omp (oh-my-pi)](https://github.com/can1357/oh-my-pi):** to domyślna, w pełni zintegrowana ścieżka, dopracowana end-to-end:
+- **ładowanie zależności** — preflight harnessu i trackera ([`QUICKSTART.md`](QUICKSTART.md) → *Wymagania*: `omp --version`, `bd --version`);
+- **konfiguracja i tożsamość** — profil oraz klucz roli per agent;
+- **wielu agentów naraz** — izolowane profile OMP (`omp --profile=<agent>`), patrz [`QUICKSTART.md`](QUICKSTART.md) → *Wielu agentów naraz*.
+
+Inne systemy agentyczne są **pluggable**: dostarcz adapter spełniający kontrakt, a substrat działa bez zmian. Doceniamy pracę ekosystemu Ompa i chętnie go wspieramy — zgłoszenia, poprawki i integracje wracają do projektu.
 
 ## Autor
 Metoda (dialektyka, 4 bramki, katalog grzechów) i architektura substratu: **Arkadiusz Słota** (zob. [NOTICE](NOTICE)).
