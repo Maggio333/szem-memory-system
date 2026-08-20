@@ -26,7 +26,14 @@ try {
   await cp(path.join(root, 'examples'), path.join(fixture, 'examples'), { recursive: true });
   const escaped = await mkdtemp(path.join(tmpdir(), 'szem-public-forum-outside-'));
   await writeFile(path.join(escaped, 'profil.yml'), 'imie: Escape\n');
-  await symlink(escaped, path.join(fixture, 'examples', 'atlas-zgloszen', 'agenci', 'Escape'));
+  let symlinkCheck = true;
+  try {
+    await symlink(escaped, path.join(fixture, 'examples', 'atlas-zgloszen', 'agenci', 'Escape'));
+  } catch (error) {
+    if (error?.code !== 'EPERM') throw error;
+    symlinkCheck = false;
+    console.log('PUBLIC-FORUM-SYMLINK-CHECK-SKIPPED (EPERM)');
+  }
   await writeFile(
     path.join(fixture, 'examples', 'atlas-zgloszen', 'agenci', 'Monter01', 'tozsamosc', 'o-mnie.md'),
     '<script>outside()</script>\n',
@@ -40,7 +47,10 @@ try {
   let response = await request(base, '/');
   assert.equal(response.status, 200);
   assert.match(await response.text(), /Monter01/);
-  assert.doesNotMatch(await request(base, '/').then((r) => r.text()), /Escape/);
+  if (symlinkCheck) {
+    assert.doesNotMatch(await request(base, '/').then((r) => r.text()), /Escape/);
+    console.log('PUBLIC-FORUM-SYMLINK-CHECK-ENFORCED');
+  }
 
   response = await request(base, '/agent/Monter01');
   assert.equal(response.status, 200);
