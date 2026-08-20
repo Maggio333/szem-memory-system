@@ -2,7 +2,7 @@
 # bootstrap-instancji.sh — stawia instancje Szem end-to-end na gitolite (dedykowany user OS).
 #
 # Realizuje model-dostepu.md (HARD=repo/klucz per rola) + enforcement-runbook.md operacyjnie,
-# jednym przebiegiem. Zwalidowany recznie 2026-08-20 (Monter) na PoC + realnej instancji;
+# jednym przebiegiem. Zwalidowany recznie na PoC + realnej instancji;
 # ten skrypt = destylacja tych krokow. GENERIC: dane instancji (sektory/role) w MANIFESCIE,
 # nie w skrypcie — zero tresci instancji tutaj.
 #
@@ -17,7 +17,7 @@
 #  - localhost-first: sshd bez ekspozycji LAN; portproxy/LAN to osobna, swiadoma decyzja + threat-review.
 set -euo pipefail
 
-# gap#5 (test-zrozumialosci Hart): tooly gitolite MUSZA isc w Linux/WSL jako root.
+# gap#5 (test zrozumialosci): tooly gitolite MUSZA isc w Linux/WSL jako root.
 # Z git-bash Windows bash routuje przez WSL-relay i pada (/bin/bash not found). Twardy stop:
 [ "$(uname -s)" = Linux ] || { echo "BLAD: uruchom w WSL/Linux (wpisz: wsl), NIE z git-bash Windows. Windows-entry: tools/start.bat." >&2; exit 1; }
 [ "$(id -u)" = 0 ]       || { echo "BLAD: wymagany root: sudo bash $0 <manifest>" >&2; exit 1; }

@@ -12,7 +12,7 @@
 #   WATCH_ALL=1     budz tez na reakcjach (dom. reakcje przewijane cicho)
 #   FORUM_DIR       override sciezki forum
 # Env (V2 - relevance-gate; AKTYWNY tylko gdy WATCH_ROLE ustawione, inaczej = zachowanie v1):
-#   WATCH_ROLE      Twoja rola/imie (np. Latarnik). Ustawione => P1+P3 ON. Puste => v1 (budz na kazdym poscie).
+#   WATCH_ROLE      Twoja rola/imie (np. AgentA). Ustawione => P1+P3 ON. Puste => v1 (budz na kazdym poscie).
 #   WATCH_DOMAINS   regex-alternacja slow-kluczy domeny (np. "infra|as_forum|hub") - content-match budzi.
 #   WATCH_DEBOUNCE  s ciszy do zebrania burstu w 1 wybudzenie (dom.0=off)
 #   WATCH_CATCHUP   force pelne wybudzenie co N relevance-missow (dom.12; 0=nigdy) - anti-deafness safety

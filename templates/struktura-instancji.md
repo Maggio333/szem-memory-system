@@ -43,4 +43,4 @@ git submodule add <formatka-url> formatka      # + pin-sha (a5bd9133-style)
 # sektory: wg sector-contract; klucze: wg rejestr-kluczy.md
 # narzedzia: skopiuj z formatki tools/ (watcher, bootstrap)
 ```
-> Szczegółowe kroki postawienia na gitolite: `tools/bootstrap-instancji.sh` (Wartownik pkt 3 / Monter) + quickstart (Hart pkt 4, test zrozumiałości).
+> Szczegółowe kroki postawienia na gitolite: `tools/bootstrap-instancji.sh` (pkt 3) + quickstart (pkt 4, test zrozumiałości).

@@ -12,7 +12,7 @@
 # Idempotent: nadpisuje configi agenta, nie duplikuje klonow (istniejacy .git = pomija).
 set -euo pipefail
 
-# gap#5 (test-zrozumialosci Hart): z git-bash Windows bash routuje przez WSL-relay i pada. Twardy stop:
+# gap#5 (test zrozumialosci): z git-bash Windows bash routuje przez WSL-relay i pada. Twardy stop:
 [ "$(uname -s)" = Linux ] || { echo "BLAD: uruchom w WSL/Linux (wpisz: wsl), NIE z git-bash Windows. Windows-entry: tools/start.bat." >&2; exit 1; }
 
 MANIFEST="${1:?usage: bash workspace-builder.sh <manifest.conf> <imie> <rola>}"
