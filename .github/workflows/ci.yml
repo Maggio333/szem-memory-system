@@ -66,15 +66,15 @@ jobs:
           clean="$(git -C "$d" rev-parse HEAD)"
           printf 'PWNED_MARKER\n' > "$d/registry"
           if printf 'refs/heads/main %s refs/heads/main %s\n' "$clean" "$base" |
-              (cd "$d" && "$script" "$d/registry" >/dev/null 2>&1); then
+              (cd "$d" && bash "$script" "$d/registry" >/dev/null 2>&1); then
             echo "FAIL: A(secret)->B(remove) powinno byc odrzucone"
             exit 1
           fi
           printf 'refs/heads/main %s refs/heads/main %s\n' "$clean" "$secret" |
-            (cd "$d" && "$script" "$d/registry" >/dev/null)
+            (cd "$d" && bash "$script" "$d/registry" >/dev/null)
           if printf 'refs/heads/new %s refs/heads/new %s\n' "$secret" \
               0000000000000000000000000000000000000000 |
-              (cd "$d" && "$script" "$d/registry" >/dev/null 2>&1); then
+              (cd "$d" && bash "$script" "$d/registry" >/dev/null 2>&1); then
             echo "FAIL: branch-create z sekretnym blobem powinien byc odrzucony"
             exit 1
           fi
@@ -83,21 +83,21 @@ jobs:
           git -C "$d" commit -qam other
           other="$(git -C "$d" rev-parse HEAD)"
           if printf 'refs/a %s refs/a %s\nrefs/b %s refs/b %s\n' "$clean" "$base" "$secret" "$base" |
-              (cd "$d" && "$script" "$d/registry" >/dev/null 2>&1); then
+              (cd "$d" && bash "$script" "$d/registry" >/dev/null 2>&1); then
             echo "FAIL: multi-ref z historycznym sekretem powinien byc odrzucony"
             exit 1
           fi
           if printf 'refs/heads/other %s refs/heads/remote %s\n' "$secret" "$other" |
-              (cd "$d" && "$script" "$d/registry" >/dev/null 2>&1); then
+              (cd "$d" && bash "$script" "$d/registry" >/dev/null 2>&1); then
             echo "FAIL: force-push non-ancestor z sekretem powinien byc odrzucony"
             exit 1
           fi
-          if (cd "$d" && "$script" "$d/missing" </dev/null >/dev/null 2>&1); then
+          if (cd "$d" && bash "$script" "$d/missing" </dev/null >/dev/null 2>&1); then
             echo "FAIL: brak rejestru powinien byc fail-closed"
             exit 1
           fi
           : > "$d/empty-registry"
-          if (cd "$d" && "$script" "$d/empty-registry" </dev/null >/dev/null 2>&1); then
+          if (cd "$d" && bash "$script" "$d/empty-registry" </dev/null >/dev/null 2>&1); then
             echo "FAIL: pusty rejestr powinien byc fail-closed"
             exit 1
           fi
