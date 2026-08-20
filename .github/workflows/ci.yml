@@ -1,0 +1,42 @@
+name: ci
+# Materializuje finding cold-review #5: shellcheck + smoke narzędzi (dotąd verify był tylko w runtime).
+# "Formatka self-correcting" = własne narzędzia też pod bramką, nie tylko treść.
+on:
+  push:
+  pull_request:
+
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck (błędy)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -S error tools/*.sh
+
+      - name: bash -n (składnia)
+        run: for f in tools/*.sh; do bash -n "$f"; done
+
+      - name: parser bezpieczny — RCE-CLOSED (#1)
+        shell: bash
+        run: |
+          . tools/lib-manifest.sh
+          printf 'GITOLITE_USER=x\nFORMATKA_URL=y\nROLES=(a b)\nSECTORS=(\n  "s|HARD|a|"\n)\nPWNED=$(touch /tmp/PWNED)\n' > /tmp/ok.conf
+          rm -f /tmp/PWNED
+          load_manifest /tmp/ok.conf
+          test ! -e /tmp/PWNED                       # kod z manifestu NIE wykonany
+          test "${#SECTORS[@]}" = 1                  # SECTORS sparsowane
+          test "${ROLES[*]}" = "a b"                 # ROLES sparsowane
+
+      - name: parser odrzuca śmieciowe nazwy (nit re-gate)
+        shell: bash
+        run: |
+          . tools/lib-manifest.sh
+          printf 'FORMATKA_URL=y\nROLES=(good bad;name)\n' > /tmp/bad.conf
+          if load_manifest /tmp/bad.conf 2>/dev/null; then echo "FAIL: powinno odrzucic smieciowa nazwe"; exit 1; fi
+          echo "OK: smieciowa nazwa odrzucona"
+
+      - name: walidator węzłów — selftest (#3, Latarnik)
+        run: python3 tools/validate-wezly.py --selftest

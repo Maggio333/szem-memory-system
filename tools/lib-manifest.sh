@@ -1,4 +1,5 @@
 # lib-manifest.sh — BEZPIECZNY parser manifestu instancji (bash). Sourcowany przez bootstrap/workspace-builder.
+# shellcheck shell=bash
 #
 # Zamyka finding cold-review #1: `source <manifest>` jako root = wykonanie DOWOLNEGO kodu z manifestu (RCE).
 # Manifest to DANE, nie kod: skalary KEY=VALUE (whitelist) + tablice ROLES/SECTORS. Ten parser NIE wykonuje
@@ -46,4 +47,14 @@ load_manifest() {
         esac ;;
     esac
   done < "$f"
+  # walidacja nazw (nit re-gate Wartownika): odrzuc smieci z prob injection ZANIM trafia do gitolite.conf
+  local _r _s _nm
+  for _r in "${ROLES[@]}"; do
+    case "$_r" in ""|*[!A-Za-z0-9_-]*) echo "BLAD manifest: niepoprawna nazwa roli: '$_r' (dozwolone [A-Za-z0-9_-])" >&2; return 1;; esac
+  done
+  for _s in "${SECTORS[@]}"; do
+    case "$_s" in *"|"*) : ;; *) echo "BLAD manifest: sektor bez formatu nazwa|granica|rw|r: '$_s'" >&2; return 1;; esac
+    _nm="${_s%%|*}"
+    case "$_nm" in ""|*[!A-Za-z0-9_-]*) echo "BLAD manifest: niepoprawna nazwa sektora: '$_nm' (w '$_s')" >&2; return 1;; esac
+  done
 }
