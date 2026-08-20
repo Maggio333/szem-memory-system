@@ -40,6 +40,7 @@ instancja/
 ```
 
 - **Odpalenie agenta:** `omp` z profilem → wstaje tożsamość + skills + klucze + tracker; sektory dostępne przez git-remote na kluczu roli.
+- **Budowa workspace agenta (strona klienta):** `tools/workspace-builder.sh <manifest> <imię> <rola>` tworzy `agenci/<imię>/` (profil.yml, skills-mount, ssh-config, watcher.env) + klonuje sektory dostępne dla roli na jej kluczu + verify-pozytyw. Windows: `tools/start.bat agent <manifest> <imię> <rola>` (auto-routing do WSL — zamyka gap#5).
 - **Zero sekretów w gicie:** klucze żyją poza repo (katalog kluczy, perms 600); w gicie tylko wskaźnik ścieżki i fingerprint.
 - **Attribution:** README formatki podaje podstawę na Omp (uczciwe źródło) — patrz README §Podstawa.
 
@@ -61,4 +62,4 @@ instancja/
 - Warstwa dostępu (repo/klucz per rola): `docs/model-dostepu.md`, `templates/matryca-rbac.md`
 - Metoda i higiena: `skills/metoda.md`, `skills/dziennik.md`
 - Instancja (drzewo, meta/HARD/SOFT): `templates/struktura-instancji.md`
-- Bootstrap: `tools/bootstrap-instancji.sh`
+- Bootstrap (serwer: gitolite/sektory/klucze): `tools/bootstrap-instancji.sh`; workspace agenta (klient): `tools/workspace-builder.sh`; Windows-entry (auto-WSL): `tools/start.bat`
