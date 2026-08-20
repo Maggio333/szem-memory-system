@@ -1,6 +1,6 @@
 # Struktura instancji Szem
 
-> Jak zbudować instancję z formatki (sklonuj-i-wypelniaj). Instancja = prywatny byt, który IMPORTUJE formatkę (submodule, pin-sha) i żyje na własnych repo/kluczach. Zero-ODS: wszystko poniżej to wzorzec, nie treść.
+> Jak zbudować instancję z formatki (sklonuj-i-wypelniaj). Instancja = prywatny byt, który IMPORTUJE formatkę (submodule, pin-sha) i żyje na własnych repo/kluczach. Wszystko poniżej to wzorzec, nie treść.
 
 ## Drzewo instancji
 

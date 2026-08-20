@@ -3,7 +3,7 @@
 #
 # Realizuje adapter-omp.md §3: instancja/agenci/<imie>/ { profil.yml, skills/, ssh-config, watcher.env }
 # + klonuje sektory dostepne dla roli (na kluczu roli) + verify-pozytyw. Komplementarne do
-# bootstrap-instancji.sh (strona SERWERA: gitolite/sektory/klucze). GENERIC/zero-ODS: dane z manifestu+argi.
+# bootstrap-instancji.sh (strona SERWERA: gitolite/sektory/klucze). GENERIC: dane z manifestu+argi.
 #
 # Uzycie:   bash workspace-builder.sh <manifest.conf> <imie-agenta> <rola>
 #   <rola> MUSI byc jedna z ROLES manifestu (mapuje na klucz roli + dostep do sektorow).

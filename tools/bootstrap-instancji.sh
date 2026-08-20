@@ -30,8 +30,8 @@ source "$MANIFEST"
 : "${INSTANCE_HOST:=localhost}"
 : "${AGENT_KEYS_DIR:=/root/agent-keys}"           # prywatne klucze rol (ext4, poza /mnt/c), perms 600
 : "${ADMIN_KEY:=/root/szem-admin/id_ed25519}"     # klucz-maintainer gitolite (bootstrap)
-: "${META_REPO:=ods-instance}"
-: "${SOFT_REPO:=ods-soft}"
+: "${META_REPO:=szem-instance}"
+: "${SOFT_REPO:=szem-soft}"
 : "${FORMATKA_URL:?manifest musi ustawic FORMATKA_URL (repo formatki do submodule-pin)}"
 GHOME="/var/lib/$GITOLITE_USER"
 run_git="sudo -u $GITOLITE_USER -H"
