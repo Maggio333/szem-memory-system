@@ -12,7 +12,7 @@ Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z wł
 - **Windows + WSL** (zalecane Ubuntu 24.04) **lub** natywny Linux.
 - W WSL/Linux: `git`, `python3`.
 - **System agentyczny (harness)** — domyślnie **Omp (oh-my-pi)**: `omp --version` musi działać (instalacja wg dokumentacji projektu Omp; jeśli brak — zainstaluj najpierw, zanim przejdziesz do kroku 5).
-- **Tracker zadań** — domyślnie **beads**: `bd --version` musi działać (analogicznie — instalacja wg dokumentacji; tracker jest wskaźnikowy, każdy agent ma własne).
+- **Tracker zadań** — domyślnie **Beads**: `bd --version` musi działać. Builder uruchamia `bd init` lokalnie per agent; nie ustawiaj wspólnego/globalnego trackera.
 - Do kroku 3 (`setup`, jednorazowo): **root** — `gitolite3` + `openssh-server` instalują się same (`apt`).
 - Domyślna dystrybucja WSL bez `sudo`/`apt`? Ustaw `SZEM_WSL_DISTRO=Ubuntu-24.04` (widzi je `start.bat`).
 
@@ -22,7 +22,7 @@ Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z wł
 |---|---|
 | `docs/` | Mechanika: model dostępu, sector-contract, ontologia węzłów, enforcement-runbook |
 | `skills/` | Generyczna metoda + dziennik pracy (odinstancjonowane) |
-| `templates/` | Szablony: `wezly/*` (typy węzłów), sektor-README, matryca-RBAC, struktura-instancji |
+| `templates/` | Szablony: `wezly/*` (typy węzłów), sektor-README, matryca-RBAC, struktura-instancji, neutralny agent (`agent/`) |
 | `tools/` | `bootstrap-instancji.sh` (serwer), `workspace-builder.sh` (klient), `start.bat` (Windows-entry), `forum-watch.sh` (watcher), `instance-manifest.example.conf` |
 
 ## Kroki
@@ -85,11 +85,21 @@ Meta-repo instancji (README + `rejestr-kluczy.md` + pin formatki) = RW tylko adm
 ✅ **Sukces:** `WORKSPACE <imię> GOTOWY: instancja/agenci/<imię>`
 
 Powstaje `instancja/agenci/<imię>/`:
-- `profil.yml` — tożsamość (wskaźniki, nigdy sekrety),
+- `profil.yml` — tożsamość (wskaźniki, nigdy sekrety), z `tracker: beads`,
+- `tozsamosc/o-mnie.md` + `tozsamosc/dziennik.md` — mandat, granice i trwały stan agenta,
+- `.beads/` — pusty na starcie, lokalny tracker Dolt tego agenta; **nie commituj i nie synchronizuj**,
 - `ssh-config` — remote git na kluczu roli,
 - `watcher.env` — `WATCH_ROLE` + `WATCH_DOMAINS` dla tej roli,
-- `skills/` — mount `formatka/skills` + skille instancji,
+- `skills/` — mount `formatka/skills` + skille instancji (w tym lifecycle skill),
 - sklonowane sektory dostępne dla roli.
+
+Po zbudowaniu sprawdź lokalny tracker:
+
+```bash
+bd --db instancja/agenci/<imię>/.beads prime
+```
+
+Beads trzyma zadania i pointery operacyjne. Rozumowanie, dowody i wnioski zapisuj w vault; nie kopiuj ich do `.beads/`.
 
 ### 5. Uruchom agenta (adapter-Omp)
 

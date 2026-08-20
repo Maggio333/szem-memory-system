@@ -26,7 +26,7 @@ load_manifest "$MANIFEST"
 : "${INSTANCE_HOST:=localhost}"
 : "${AGENT_KEYS_DIR:=/srv/szem/agent-keys}"       # musi byc CZYTELNY dla usera agenta (nie /root(700)) - fix #2
 : "${INSTANCE_DIR:=./instancja}"
-
+: "${BEADS_BIN:=bd}"                              # tracker operacyjny per agent (lokalny, nie repo)
 log(){ printf '[workspace] %s\n' "$*"; }
 die(){ printf '[workspace][BLAD] %s\n' "$*" >&2; exit 1; }
 join_csv(){ local IFS=,; echo "$*"; }
@@ -38,9 +38,31 @@ KEY="$AGENT_KEYS_DIR/$ROLE/id_ed25519"
 [ -e "$KEY" ] || die "klucz roli niedostepny: $KEY (nie istnieje LUB parent nietraversowalny dla $(id -un) — np. /root(700)). Napraw: AGENT_KEYS_DIR czytelny dla usera agenta ALBO bootstrap z AGENT_OS_USER=$(id -un); jesli instancji nie ma — najpierw bootstrap-instancji.sh. - fix #2"
 [ -r "$KEY" ] || die "klucz $KEY istnieje ale NIECZYTELNY dla $(id -un): ustaw AGENT_KEYS_DIR na katalog czytelny dla usera agenta, LUB w bootstrapie AGENT_OS_USER=$(id -un) (klucze w /root sa root-only) - fix #2"
 
+FORMATKA_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+AGENT_TEMPLATE_DIR="$FORMATKA_DIR/templates/agent"
+NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+render_template() {
+  local file="$1" content
+  [ -f "$AGENT_TEMPLATE_DIR/$file" ] || die "brak szablonu agenta: $AGENT_TEMPLATE_DIR/$file"
+  content="$(<"$AGENT_TEMPLATE_DIR/$file")"
+  content="${content//\{\{NAZWA_AGENTA\}\}/$AGENT}"
+  content="${content//\{\{ROLA\}\}/$ROLE}"
+  content="${content//\{\{DATA_UTC\}\}/$NOW_UTC}"
+  printf '%s\n' "$content"
+}
 WS="$INSTANCE_DIR/agenci/$AGENT"
-mkdir -p "$WS/skills"
+mkdir -p "$WS/skills" "$WS/tozsamosc"
 log "workspace: $WS (rola=$ROLE)"
+
+# --- tracker (adapter-omp §2 wym.4): pusty Beads per agent, poza publicznym repo ---
+command -v "$BEADS_BIN" >/dev/null 2>&1 || die "brak Beads ($BEADS_BIN); zainstaluj bd przed budowa workspace"
+"$BEADS_BIN" --version >/dev/null 2>&1 || die "Beads ($BEADS_BIN) jest niedostepny dla tego WSL/Linux; zainstaluj linuxowa wersje bd przed budowa workspace"
+if ! (cd "$WS" && BEADS_DIR="$PWD/.beads" "$BEADS_BIN" init \
+  --non-interactive --init-if-missing --prefix "$AGENT" \
+  --stealth --skip-agents --skip-hooks >/dev/null 2>&1); then
+  die "nie udalo sie zainicjalizowac lokalnego Beads: $WS/.beads"
+fi
+log "tracker: Beads lokalny per agent -> $WS/.beads (pointery, nie vault)"
 
 # --- sektory HARD dostepne dla roli (RW+ = wlasny, R = tylko-odczyt) ---
 own_hard=(); ro_hard=()
@@ -60,7 +82,21 @@ sektory_rw: [$(join_csv "${own_hard[@]:-}")]
 sektory_ro: [$(join_csv "${ro_hard[@]:-}")]
 klucz: $KEY            # WSKAZNIK sciezki do klucza roli, nigdy sam klucz w gicie
 gitolite: $GITOLITE_USER@$INSTANCE_HOST
+tracker: beads
+tozsamosc_dir: $WS/tozsamosc
+dziennik: $WS/tozsamosc/dziennik.md
+lifecycle_skill: $WS/skills/formatka/agent-lifecycle.md
+tracker_dir: $WS/.beads
 YML
+
+# --- tozsamosc (publiczny wzorzec; prywatny stan nie jest nadpisywany przy kolejnym buildzie) ---
+if [ ! -e "$WS/tozsamosc/o-mnie.md" ]; then
+  render_template o-mnie.md > "$WS/tozsamosc/o-mnie.md"
+fi
+if [ ! -e "$WS/tozsamosc/dziennik.md" ]; then
+  render_template dziennik.md > "$WS/tozsamosc/dziennik.md"
+fi
+log "tozsamosc: $WS/tozsamosc/{o-mnie.md,dziennik.md}"
 
 # --- ssh-config (adapter-omp §2 wym.3: klucz roli jako wskaznik) ---
 cat > "$WS/ssh-config" <<CFG
@@ -115,4 +151,6 @@ else
 fi
 
 log "WORKSPACE $AGENT GOTOWY: $WS"
+log "Tracker: Beads lokalny per agent (nie commituj .beads/); start: bd --db $WS/.beads prime"
+log "Identity: $WS/tozsamosc (uzupelnij mandat/granice przed pierwsza sesja)"
 log "Start agenta (adapter-omp): . $WS/watcher.env ; GIT_SSH_COMMAND=\"ssh -F $WS/ssh-config\" ; odpal harness z profilem $WS/profil.yml"
