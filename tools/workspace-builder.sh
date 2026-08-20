@@ -71,7 +71,7 @@ Host gitolite
     IdentityFile $KEY
     IdentitiesOnly yes
     StrictHostKeyChecking accept-new
-    UserKnownHostsFile /dev/null
+    UserKnownHostsFile $WS/known_hosts
 CFG
 
 # --- watcher.env (adapter-omp §2 wym.5: kanal koordynacji per agent) ---
@@ -96,7 +96,7 @@ fi
 [ -d "$INSTANCE_DIR/skille" ] && { ln -sfn ../../skille "$WS/skills/instancja"; log "skills-mount: skille/ -> $WS/skills/instancja"; }
 
 # --- klonuj sektory dostepne dla roli (na kluczu roli) ---
-GSSH="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o ConnectTimeout=10"
+GSSH="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=$WS/known_hosts -o BatchMode=yes -o ConnectTimeout=10"
 clone_sector(){ GIT_SSH_COMMAND="$GSSH" git clone -q "$GITOLITE_USER@$INSTANCE_HOST:$1" "$WS/$1" 2>/dev/null; }
 for s in "${own_hard[@]:-}" "${ro_hard[@]:-}"; do
   [ -n "$s" ] || continue
