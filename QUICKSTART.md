@@ -87,19 +87,20 @@ Meta-repo instancji (README + `rejestr-kluczy.md` + pin formatki) = RW tylko adm
 Powstaje `instancja/agenci/<agent_slug>/`:
 - `profil.yml` — tożsamość (wskaźniki, nigdy sekrety), z `tracker: beads`,
 - `tozsamosc/o-mnie.md` + `tozsamosc/dziennik.md` — mandat, granice i trwały stan agenta,
-- `.beads/` — pusty na starcie, lokalny tracker Dolt tego agenta; **nie commituj i nie synchronizuj**,
+- `.beads/` — lokalny tracker Dolt z trzema neutralnymi beadami pierwszego dyżuru: profil-check, metoda+dziennik, mandat+bezpieczny zakres; **nie commituj i nie synchronizuj**,
 - `ssh-config` — remote git na kluczu roli,
 - `watcher.env` — `WATCH_ROLE` + `WATCH_DOMAINS` dla tej roli,
 - `skills/` — mount `formatka/skills` + skille instancji (w tym lifecycle skill),
 - sklonowane sektory dostępne dla roli.
 
-Po zbudowaniu sprawdź lokalny tracker:
+Po zbudowaniu przejmij lokalne beady w kolejności: profil-check, metoda+dziennik, potem potwierdzenie mandatu/granic i wybór pierwszego bezpiecznego zakresu:
 
 ```bash
 bd --db instancja/agenci/<agent_slug>/.beads prime
+bd --db instancja/agenci/<agent_slug>/.beads ready
 ```
 
-Beads trzyma zadania i pointery operacyjne. Rozumowanie, dowody i wnioski zapisuj w vault; nie kopiuj ich do `.beads/`.
+Seed i pierwszy wpis dziennika są celowo neutralne: nie zawierają zadań, ludzi, ID ani danych instancji. Re-run nie dubluje seedów ani nie nadpisuje dziennika. Beads trzyma zadania i pointery operacyjne. Rozumowanie, dowody i wnioski zapisuj w vault; nie kopiuj ich do `.beads/`.
 
 ### 5. Uruchom agenta (adapter-Omp)
 

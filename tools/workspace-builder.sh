@@ -58,6 +58,14 @@ render_template() {
   content="${content//\{\{ID_AGENTA\}\}/$AGENT_ID}"
   content="${content//\{\{ROLA\}\}/$ROLE}"
   content="${content//\{\{DATA_UTC\}\}/$NOW_UTC}"
+  content="${content//\{\{BEADY_LUB_BRAK\}\}/3 neutralne beady onboarding; nieprzejęte}"
+  content="${content//\{\{GRANICE\}\}/uzupełnij mandat i granice z prywatnej instancji; nie ujawniaj sekretów}"
+  content="${content//\{\{BLOKERY_LUB_BRAK\}\}/brak na starcie}"
+  content="${content//\{\{NASTEPNY_KROK\}\}/przejmij bead profil-check przed pracą merytoryczną}"
+  content="${content//\{\{WYNIK\}\}/nie rozpoczęto}"
+  content="${content//\{\{WSKAZNIK_LUB_BRAK\}\}/profil.yml i lokalny tracker}"
+  content="${content//\{\{ZAKRES_ODPOWIEDZIALNOSCI\}\}/uzupełnij przed pierwszą pracą z prywatnej instancji}"
+  content="${content//\{\{OPERATOR_LUB_INSTANCJA\}\}/prywatna instancja}"
   printf '%s\n' "$content"
 }
 WS="$INSTANCE_DIR/agenci/$AGENT"
@@ -73,6 +81,22 @@ if ! (cd "$WS" && BEADS_DIR="$PWD/.beads" "$BEADS_BIN" init \
   die "nie udalo sie zainicjalizowac lokalnego Beads: $WS/.beads"
 fi
 log "tracker: Beads lokalny per agent -> $WS/.beads (pointery, nie vault)"
+seed_bead() {
+  local marker="$WS/.beads/.szem-first-run-$1" title="$2" description="$3"
+  [ -e "$marker" ] && return
+  if ! BEADS_DIR="$WS/.beads" "$BEADS_BIN" create \
+    --title "$title" --description "$description" --type task --priority 2 --silent >/dev/null; then
+    die "nie udalo sie utworzyc beada pierwszego dyzuru: $WS/.beads"
+  fi
+  : > "$marker"
+}
+seed_bead profil-check "Pierwsza sesja: profil-check" \
+  "Sprawdź tożsamość z profil.yml oraz rolę, granice i dostępne sektory. Nie zaczynaj pracy merytorycznej przed potwierdzeniem."
+seed_bead metoda-dziennik "Pierwsza sesja: przeczytaj metodę i dziennik" \
+  "Przeczytaj zamontowaną metodę oraz dziennik pracy. Tracker wskazuje zadania; trwałe rozumowanie pozostaje w dokumentach."
+seed_bead mandat-zakres "Pierwsza sesja: potwierdź mandat i wybierz zakres" \
+  "Uzupełnij mandat i granice z prywatnej instancji, potwierdź dostępne sektory i wybierz pierwszy bezpieczny zakres."
+log "tracker: trzy neutralne beady pierwszego dyżuru są gotowe"
 
 # --- sektory HARD dostepne dla roli (RW+ = wlasny, R = tylko-odczyt) ---
 own_hard=(); ro_hard=()

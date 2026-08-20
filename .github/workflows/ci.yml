@@ -38,6 +38,9 @@ jobs:
           if load_manifest /tmp/bad.conf 2>/dev/null; then echo "FAIL: powinno odrzucic smieciowa nazwe"; exit 1; fi
           echo "OK: smieciowa nazwa odrzucona"
 
+      - name: workspace builder — profil, Beads i bezpieczny slug
+        run: bash tools/test-workspace-builder.sh
+
       - name: walidator węzłów — selftest
         run: python3 tools/validate-wezly.py --selftest
 
