@@ -76,7 +76,7 @@ fi
 
 log "workspace: $WS (rola=$ROLE)"
 
-# --- tracker (adapter-omp §2 wym.4): pusty Beads per agent, poza publicznym repo ---
+# --- tracker (adapter-omp §2 wym.4): trzy neutralne seedy pierwszego dyżuru, poza publicznym repo ---
 command -v "$BEADS_BIN" >/dev/null 2>&1 || die "brak Beads ($BEADS_BIN); zainstaluj bd przed budowa workspace"
 "$BEADS_BIN" --version >/dev/null 2>&1 || die "Beads ($BEADS_BIN) jest niedostepny dla tego WSL/Linux; zainstaluj linuxowa wersje bd przed budowa workspace"
 if ! (cd "$WS" && "$BEADS_BIN" init \

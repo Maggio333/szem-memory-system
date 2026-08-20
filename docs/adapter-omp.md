@@ -37,7 +37,7 @@ instancja/
 │       │   ├── o-mnie.md
 │       │   └── dziennik.md
 │       ├── skills/      #   skills-mount: -> formatka/skills + instancja/skille
-│       ├── .beads/      #   lokalny tracker operacyjny, pusty przy scaffoldzie
+│       ├── .beads/      #   lokalny tracker z trzema neutralnymi zadaniami pierwszego dyżuru
 │       ├── ssh-config   #   klucz roli: Host gitolite → IdentityFile <ścieżka klucza>
 │       └── watcher.env  #   WATCH_ROLE/WATCH_DOMAINS (kanał koordynacji)
 └── rejestr-kluczy.md    # role → fingerprint (kotwica integralności)
