@@ -70,22 +70,31 @@ render_template() {
 }
 WS="$INSTANCE_DIR/agenci/$AGENT"
 mkdir -p "$WS/skills" "$WS/tozsamosc"
+if [ ! -e "$WS/.git" ]; then
+  git init -q "$WS" || die "nie udalo sie utworzyc lokalnego Git workspace dla Beads: $WS"
+fi
+
 log "workspace: $WS (rola=$ROLE)"
 
 # --- tracker (adapter-omp §2 wym.4): pusty Beads per agent, poza publicznym repo ---
 command -v "$BEADS_BIN" >/dev/null 2>&1 || die "brak Beads ($BEADS_BIN); zainstaluj bd przed budowa workspace"
 "$BEADS_BIN" --version >/dev/null 2>&1 || die "Beads ($BEADS_BIN) jest niedostepny dla tego WSL/Linux; zainstaluj linuxowa wersje bd przed budowa workspace"
-if ! (cd "$WS" && BEADS_DIR="$PWD/.beads" "$BEADS_BIN" init \
+if ! (cd "$WS" && "$BEADS_BIN" init \
   --non-interactive --init-if-missing --prefix "$AGENT_ID" \
   --stealth --skip-agents --skip-hooks >/dev/null 2>&1); then
   die "nie udalo sie zainicjalizowac lokalnego Beads: $WS/.beads"
 fi
 log "tracker: Beads lokalny per agent -> $WS/.beads (pointery, nie vault)"
 seed_bead() {
-  local marker="$WS/.beads/.szem-first-run-$1" title="$2" description="$3"
+  local seed="$1" marker="$WS/.beads/.szem-first-run-$1" title="$2" description="$3"
+  local seed_id="$AGENT_ID-$seed"
   [ -e "$marker" ] && return
-  if ! BEADS_DIR="$WS/.beads" "$BEADS_BIN" create \
-    --title "$title" --description "$description" --type task --priority 2 --silent >/dev/null; then
+  if (cd "$WS" && "$BEADS_BIN" show --id "$seed_id" >/dev/null 2>&1); then
+    : > "$marker"
+    return
+  fi
+  if ! (cd "$WS" && "$BEADS_BIN" create \
+    --id "$seed_id" --title "$title" --description "$description" --type task --priority 2 --silent >/dev/null); then
     die "nie udalo sie utworzyc beada pierwszego dyzuru: $WS/.beads"
   fi
   : > "$marker"
