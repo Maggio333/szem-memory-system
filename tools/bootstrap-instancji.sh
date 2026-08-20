@@ -17,6 +17,11 @@
 #  - localhost-first: sshd bez ekspozycji LAN; portproxy/LAN to osobna, swiadoma decyzja + threat-review.
 set -euo pipefail
 
+# gap#5 (test-zrozumialosci Hart): tooly gitolite MUSZA isc w Linux/WSL jako root.
+# Z git-bash Windows bash routuje przez WSL-relay i pada (/bin/bash not found). Twardy stop:
+[ "$(uname -s)" = Linux ] || { echo "BLAD: uruchom w WSL/Linux (wpisz: wsl), NIE z git-bash Windows. Windows-entry: tools/start.bat." >&2; exit 1; }
+[ "$(id -u)" = 0 ]       || { echo "BLAD: wymagany root: sudo bash $0 <manifest>" >&2; exit 1; }
+
 MANIFEST="${1:?usage: sudo bash bootstrap-instancji.sh <manifest.conf>}"
 [ -f "$MANIFEST" ] || { echo "BLAD: brak manifestu $MANIFEST" >&2; exit 1; }
 # shellcheck disable=SC1090
