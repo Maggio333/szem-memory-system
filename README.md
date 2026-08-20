@@ -14,7 +14,7 @@ To repo jest **jawną strefą publiczną** projektu: wszystko tutaj jest pisane 
 Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (git nie ma per-path ACL). Sektory wrażliwe = osobne repo/remote z własnym kluczem; reszta = miękko folderami. Static-first (uprawnienia git); warstwa retrieval/RAG dopiero gdy skala wymusi (v2), wtedy index per-sektor.
 
 ## Operacyjnie: Beads per agent
-**Używamy [Beads](https://github.com/gastownhall/beads) jako domyślnego trackera operacyjnego**, nie jako pamięci długotrwałej ani wspólnej bazy agentów.
+**Używamy [Beads](https://github.com/gastownhall/beads) jako domyślnego, lokalnego trackera per agent**, nie jako pamięci długotrwałej ani domyślnie wspólnej bazy agentów.
 
 | Magazyn | Co w nim zostaje |
 |---|---|
@@ -24,6 +24,8 @@ Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (
 | Kanał koordynacji | handoffy, pytania i bieżące meldunki |
 
 `workspace-builder` tworzy dla każdego agenta osobny, bezremote’owy workspace z lokalnym `.beads/`. Seeduje trzy neutralne kroki pierwszego dyżuru: profil-check, przeczytanie metody i dziennika oraz potwierdzenie mandatu/granic z wyborem bezpiecznego zakresu. Re-run nie dubluje tych zadań ani nie nadpisuje prywatnego dziennika.
+
+Domyślny zakres trackera jest per-agent. Jeżeli konkretny proces wymaga współdzielenia, operator może jawnie dopuścić **prywatny** wspólny tracker z określonym zakresem i uprawnieniami. Nadal zawiera on tylko stan operacyjny i wskaźniki: trwałe rozumowanie zostaje w dokumentach, a dane instancji nigdy nie trafiają do publicznego repo.
 
 Zasady pracy są proste: jeden bead = jeden obserwowalny wynik; przed wspólną zmianą jest claim; przy handoffie zadanie ma stan, właściciela blokera i następny krok. **Beads wskazuje, dokument trzyma** — do trackera nie kopiujemy długiego rozumowania, sekretów, kluczy, tokenów, pełnych prywatnych ścieżek ani danych sektorów. `.beads/` jest runtime-only: nie commitujemy go i nie synchronizujemy z publicznym repo. Pełny cykl: [`skills/agent-lifecycle.md`](skills/agent-lifecycle.md); instalacja: [`QUICKSTART.md`](QUICKSTART.md).
 
