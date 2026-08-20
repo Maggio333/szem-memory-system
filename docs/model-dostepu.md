@@ -1,6 +1,6 @@
 # Model dostępu — RBAC sektorów wiedzy
 
-> Status: **propozycja Faza0** (branch `wart/model-dostepu`, do review). Konsoliduje ustalenia zespołu; zero nowych decyzji.
+> Status: **aktywny** (zmergowany do main; enforcement zweryfikowany dwustronnie w bootstrapie). Konsoliduje ustalenia zespołu; zero nowych decyzji.
 
 Szem dzieli wiedzę na **sektory**, a dostęp agenta do sektora wynika z jego **roli**. Kluczowa zasada: izolacja ma być **egzekwowana technicznie**, nie deklarowana — konwencja, którą da się ominąć błędem albo prompt-injection, nie jest granicą.
 
