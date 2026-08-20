@@ -11,6 +11,8 @@ Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z wł
 
 - **Windows + WSL** (zalecane Ubuntu 24.04) **lub** natywny Linux.
 - W WSL/Linux: `git`, `python3`.
+- **System agentyczny (harness)** — domyślnie **Omp (oh-my-pi)**: `omp --version` musi działać (instalacja wg dokumentacji projektu Omp; jeśli brak — zainstaluj najpierw, zanim przejdziesz do kroku 5).
+- **Tracker zadań** — domyślnie **beads**: `bd --version` musi działać (analogicznie — instalacja wg dokumentacji; tracker jest wskaźnikowy, każdy agent ma własne).
 - Do kroku 3 (`setup`, jednorazowo): **root** — `gitolite3` + `openssh-server` instalują się same (`apt`).
 - Domyślna dystrybucja WSL bez `sudo`/`apt`? Ustaw `SZEM_WSL_DISTRO=Ubuntu-24.04` (widzi je `start.bat`).
 
