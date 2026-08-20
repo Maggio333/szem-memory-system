@@ -14,7 +14,9 @@ To repo to **jawna strefa publiczna** (lokalnie trzymana w kubełku `Public/`). 
 Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (git nie ma per-path ACL). Sektory wrażliwe = osobne repo/remote z własnym kluczem; reszta = miękko folderami. Static-first (uprawnienia git); warstwa retrieval/RAG dopiero gdy skala wymusi (v2), wtedy index per-sektor.
 
 ## Status
-**WIP — v0 scaffold.** Struktura formatki (układ sektorów, mapowanie ról, szablony Beads/skille/dokumenty) projektowana kolaboracyjnie — Faza 0. To repo jest *miejscem*; mechanika dochodzi iteracyjnie.
+**v0 — formatka z narzędziami obu stron adaptera.** Mechanika (`docs/`), skille (`skills/`) i szablony (`templates/`) są na miejscu; stawianie instancji działa end-to-end: serwer (`tools/bootstrap-instancji.sh`), klient (`tools/workspace-builder.sh` + `tools/start.bat` — Windows-entry). Wypełnianie sektorów treścią i hartowanie idą iteracyjnie.
+
+**Start:** [`QUICKSTART.md`](QUICKSTART.md) — od `git clone` do działającej instancji z agentem w 6 krokach.
 
 ## Podstawa
 Domyślny system agentyczny formatki to **Omp (oh-my-pi)** — na nim stoi warstwa adaptera (`docs/adapter-omp.md`).
