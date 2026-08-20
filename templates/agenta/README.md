@@ -4,7 +4,7 @@ Ten katalog jest **publicznym wzorcem**, nie profilem istniejącego agenta. Skop
 
 ## Co materializuje workspace-builder
 
-`tools/workspace-builder.sh <manifest> <imię> <rola>` tworzy workspace z:
+`tools/workspace-builder.sh <manifest> <agent_slug> <agent_id> <rola>` tworzy workspace z:
 
 - `profil.yml` — techniczny profil: rola, sektory, wskaźniki do klucza i lokalnego trackera;
 - `tozsamosc/o-mnie.md` — mandat, umiejętności i granice agenta;

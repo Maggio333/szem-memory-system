@@ -5,7 +5,8 @@
 # + klonuje sektory dostepne dla roli (na kluczu roli) + verify-pozytyw. Komplementarne do
 # bootstrap-instancji.sh (strona SERWERA: gitolite/sektory/klucze). GENERIC: dane z manifestu+argi.
 #
-# Uzycie:   bash workspace-builder.sh <manifest.conf> <imie-agenta> <rola>
+# Uzycie:   bash workspace-builder.sh <manifest.conf> <agent_slug> <agent_id> <rola>
+#   <agent_slug> to bezpieczna nazwa katalogu/profilu; <agent_id> to prywatny stabilny identyfikator.
 #   <rola> MUSI byc jedna z ROLES manifestu (mapuje na klucz roli + dostep do sektorow).
 # Wymaga:   Linux/WSL (klucze rol z bootstrapa zyja na ext4, perms 600), git, ssh. NIE root
 #           (workspace-builder dziala na kluczu roli, nie systemowo). Windows: uzyj tools/start.bat.
@@ -15,9 +16,10 @@ set -euo pipefail
 # gap#5 (test zrozumialosci): z git-bash Windows bash routuje przez WSL-relay i pada. Twardy stop:
 [ "$(uname -s)" = Linux ] || { echo "BLAD: uruchom w WSL/Linux (wpisz: wsl), NIE z git-bash Windows. Windows-entry: tools/start.bat." >&2; exit 1; }
 
-MANIFEST="${1:?usage: bash workspace-builder.sh <manifest.conf> <imie> <rola>}"
-AGENT="${2:?podaj imie agenta}"
-ROLE="${3:?podaj role (jedna z ROLES manifestu)}"
+MANIFEST="${1:?usage: bash workspace-builder.sh <manifest.conf> <agent_slug> <agent_id> <rola>}"
+AGENT="${2:?podaj agent_slug (A-Za-z0-9, _, -)}"
+AGENT_ID="${3:?podaj prywatny agent_id}"
+ROLE="${4:?podaj role (jedna z ROLES manifestu)}"
 [ -f "$MANIFEST" ] || { echo "BLAD: brak manifestu $MANIFEST" >&2; exit 1; }
 # shellcheck disable=SC1090
 . "$(cd "$(dirname "$0")" && pwd)/lib-manifest.sh"
@@ -30,6 +32,13 @@ load_manifest "$MANIFEST"
 log(){ printf '[workspace] %s\n' "$*"; }
 die(){ printf '[workspace][BLAD] %s\n' "$*" >&2; exit 1; }
 join_csv(){ local IFS=,; echo "$*"; }
+case "$AGENT" in
+  [A-Za-z0-9]*)
+    [[ "$AGENT" =~ ^[A-Za-z0-9][A-Za-z0-9_-]*$ ]] || die "agent_slug '$AGENT' musi pasowac do [A-Za-z0-9][A-Za-z0-9_-]*"
+    ;;
+  *) die "agent_slug '$AGENT' musi zaczynac sie od A-Za-z0-9" ;;
+esac
+[[ "$AGENT_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || die "agent_id musi pasowac do [A-Za-z0-9][A-Za-z0-9._-]*"
 
 # rola musi istniec w ROLES manifestu
 case " ${ROLES[*]:-} " in *" $ROLE "*) : ;; *) die "rola '$ROLE' nie jest w ROLES manifestu (${ROLES[*]:-brak})";; esac
@@ -39,13 +48,14 @@ KEY="$AGENT_KEYS_DIR/$ROLE/id_ed25519"
 [ -r "$KEY" ] || die "klucz $KEY istnieje ale NIECZYTELNY dla $(id -un): ustaw AGENT_KEYS_DIR na katalog czytelny dla usera agenta, LUB w bootstrapie AGENT_OS_USER=$(id -un) (klucze w /root sa root-only) - fix #2"
 
 FORMATKA_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-AGENT_TEMPLATE_DIR="$FORMATKA_DIR/templates/agent"
+AGENT_TEMPLATE_DIR="$FORMATKA_DIR/templates/agenta"
 NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 render_template() {
   local file="$1" content
   [ -f "$AGENT_TEMPLATE_DIR/$file" ] || die "brak szablonu agenta: $AGENT_TEMPLATE_DIR/$file"
   content="$(<"$AGENT_TEMPLATE_DIR/$file")"
   content="${content//\{\{NAZWA_AGENTA\}\}/$AGENT}"
+  content="${content//\{\{ID_AGENTA\}\}/$AGENT_ID}"
   content="${content//\{\{ROLA\}\}/$ROLE}"
   content="${content//\{\{DATA_UTC\}\}/$NOW_UTC}"
   printf '%s\n' "$content"
@@ -58,7 +68,7 @@ log "workspace: $WS (rola=$ROLE)"
 command -v "$BEADS_BIN" >/dev/null 2>&1 || die "brak Beads ($BEADS_BIN); zainstaluj bd przed budowa workspace"
 "$BEADS_BIN" --version >/dev/null 2>&1 || die "Beads ($BEADS_BIN) jest niedostepny dla tego WSL/Linux; zainstaluj linuxowa wersje bd przed budowa workspace"
 if ! (cd "$WS" && BEADS_DIR="$PWD/.beads" "$BEADS_BIN" init \
-  --non-interactive --init-if-missing --prefix "$AGENT" \
+  --non-interactive --init-if-missing --prefix "$AGENT_ID" \
   --stealth --skip-agents --skip-hooks >/dev/null 2>&1); then
   die "nie udalo sie zainicjalizowac lokalnego Beads: $WS/.beads"
 fi
@@ -77,6 +87,7 @@ done
 cat > "$WS/profil.yml" <<YML
 # profil agenta (adapter-omp §2 wym.1). Przy starcie sesji: przedstaw sie i zweryfikuj z rejestr-kluczy.md (profil-check).
 imie: $AGENT
+id: $AGENT_ID
 rola: $ROLE
 sektory_rw: [$(join_csv "${own_hard[@]:-}")]
 sektory_ro: [$(join_csv "${ro_hard[@]:-}")]

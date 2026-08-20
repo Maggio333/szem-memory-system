@@ -31,7 +31,7 @@ Omp (oh-my-pi) jako domyślny system agentyczny. Konfiguracja per agent w **inst
 instancja/
 ├── formatka/            # submodule (pin-sha) — substrat, nie ruszany przez adapter
 ├── agenci/
-│   └── <imie>/          # per-agent config:
+│   └── <agent_slug>/   # per-agent config:
 │       ├── profil.yml   #   tożsamość: rola, sektory, granice (wskaźniki)
 │       ├── tozsamosc/   #   mandat, granice i dziennik agenta
 │       │   ├── o-mnie.md
@@ -43,8 +43,9 @@ instancja/
 └── rejestr-kluczy.md    # role → fingerprint (kotwica integralności)
 
 - **Odpalenie agenta:** `omp` z profilem → wstaje tożsamość + skills + klucze + tracker; sektory dostępne przez git-remote na kluczu roli.
-- **Budowa workspace agenta (strona klienta):** `tools/workspace-builder.sh <manifest> <imię> <rola>` tworzy `agenci/<imię>/` (profil.yml, skills-mount, `.beads/`, ssh-config, watcher.env) + klonuje sektory dostępne dla roli na jej kluczu + verify-pozytyw. Windows: `tools/start.bat agent <manifest> <imię> <rola>` (auto-routing do WSL — zamyka gap#5).
-- **Tracker:** workspace-builder uruchamia `bd init --non-interactive --init-if-missing --prefix <imię> --stealth` z `BEADS_DIR=<workspace>/.beads`. `.beads/` jest lokalny per agent i nie wchodzi do publicznego repo; tracker przechowuje pointery do węzłów, nie kopie rozumowania.
+- **Budowa workspace agenta (strona klienta):** `tools/workspace-builder.sh <manifest> <agent_slug> <agent_id> <rola>` tworzy `agenci/<agent_slug>/` (profil.yml, skills-mount, `.beads/`, ssh-config, watcher.env) + klonuje sektory dostępne dla roli na jej kluczu + verify-pozytyw. `agent_slug` jest walidowany przed utworzeniem katalogu; `agent_id` jest prywatnym identyfikatorem w profilu/tożsamości. Windows: `tools/start.bat agent <manifest> <agent_slug> <agent_id> <rola>` (auto-routing do WSL — zamyka gap#5).
+- **Tracker:** workspace-builder uruchamia `bd init --non-interactive --init-if-missing --prefix <agent_id> --stealth` z `BEADS_DIR=<workspace>/.beads`. `.beads/` jest lokalny per agent i nie wchodzi do publicznego repo; tracker przechowuje pointery do węzłów, nie kopie rozumowania.
+- **Wzorzec tożsamości:** publiczne `templates/agenta/` daje neutralne profile/dziennik; private `agent_id` jest renderowany lokalnie i nie należy do publicznej formatki.
 - **Zero sekretów w gicie:** klucze żyją poza repo (katalog kluczy, perms 600); w gicie tylko wskaźnik ścieżki i fingerprint. `.beads/` nie jest materiałem do commitowania ani synchronizacji repo.
 - **Attribution:** README formatki podaje podstawę na Omp (uczciwe źródło) — patrz README §Podstawa.
 
