@@ -24,11 +24,13 @@ set -euo pipefail
 
 MANIFEST="${1:?usage: sudo bash bootstrap-instancji.sh <manifest.conf>}"
 [ -f "$MANIFEST" ] || { echo "BLAD: brak manifestu $MANIFEST" >&2; exit 1; }
-# shellcheck disable=SC1090
-source "$MANIFEST"
+# bezpieczny parser zamiast `source` (RCE #1 cold-review): lib = nasz zaufany kod; manifest = tylko dane
+. "$(cd "$(dirname "$0")" && pwd)/lib-manifest.sh"
+load_manifest "$MANIFEST"
 : "${GITOLITE_USER:=szem-git}"
 : "${INSTANCE_HOST:=localhost}"
-: "${AGENT_KEYS_DIR:=/root/agent-keys}"           # prywatne klucze rol (ext4, poza /mnt/c), perms 600
+: "${AGENT_KEYS_DIR:=/srv/szem/agent-keys}"       # klucze rol (ext4, poza /mnt/c). NIE /root (700 => nie-root agent NIE odczyta klucza) - fix #2 cold-review
+: "${AGENT_OS_USER:=}"                            # OS-user ktory URUCHAMIA agentow (nie-root): bootstrap chown mu klucze. Puste = agent chodzi jako root.
 : "${ADMIN_KEY:=/root/szem-admin/id_ed25519}"     # klucz-maintainer gitolite (bootstrap)
 : "${META_REPO:=szem-instance}"
 : "${SOFT_REPO:=szem-soft}"
@@ -113,12 +115,16 @@ apply_config() {
 # --- 3. klucze rol (gen ext4 600 + keydir) ---
 add_roles() {
   gclone gitolite-admin "$WORK/ga-keys"
+  mkdir -p "$AGENT_KEYS_DIR"; chmod 0755 "$AGENT_KEYS_DIR" 2>/dev/null || true   # baza traversable (klucze i tak 600)
   for role in "${ROLES[@]}"; do
     local kd="$AGENT_KEYS_DIR/$role"
     if [ ! -f "$kd/id_ed25519" ]; then
       log "gen klucz roli $role (ext4, 600)"
       mkdir -p "$kd"; ssh-keygen -t ed25519 -N "" -C "$role" -f "$kd/id_ed25519" -q; chmod 600 "$kd/id_ed25519"
     fi
+    # fix #2 (cold-review): klucz MUSI byc czytelny dla usera uruchamiajacego agenta (nie-root) — inaczej
+    # workspace-builder i sam agent (ssh IdentityFile) pada na /root(700). AGENT_OS_USER set => chown; puste => root-run.
+    if [ -n "${AGENT_OS_USER:-}" ]; then chown -R "$AGENT_OS_USER" "$kd" 2>/dev/null || log "UWAGA: chown $kd -> $AGENT_OS_USER nieudany (sprawdz czy user istnieje)"; fi
     cp "$kd/id_ed25519.pub" "$WORK/ga-keys/keydir/$role.pub"
     log "  $role fp: $(ssh-keygen -lf "$kd/id_ed25519.pub" | awk '{print $2}')"
   done
