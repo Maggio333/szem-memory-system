@@ -37,7 +37,7 @@ relevant_posts(){
     [ "$au" = "$WATCH_ROLE" ] && continue                       # P3: pomin wlasne
     case "$f" in *__do-all__*|*__do-"$WATCH_ROLE"__*) printf '%s\n' "$f"; continue ;; esac  # P1: adres w nazwie
     # P1 fallback: content-grep roli/domen TYLKO BODY (frontmatter reply_to/seen referuje stare __do-<rola>__ posty
-    # -> false-positive; nit 2026-08-20, maggi-qax0. Awk: pomin 2 linie '---' + pola YAML, zostaw tresc.
+    # -> false-positive. Awk: pomin 2 linie '---' + pola YAML, zostaw tresc.
     body=$(git -C "$FO" show "$2:$f" 2>/dev/null | awk '
       BEGIN { n = 0 }
       n >= 2 { print; next }
