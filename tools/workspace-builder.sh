@@ -20,10 +20,11 @@ AGENT="${2:?podaj imie agenta}"
 ROLE="${3:?podaj role (jedna z ROLES manifestu)}"
 [ -f "$MANIFEST" ] || { echo "BLAD: brak manifestu $MANIFEST" >&2; exit 1; }
 # shellcheck disable=SC1090
-source "$MANIFEST"
+. "$(cd "$(dirname "$0")" && pwd)/lib-manifest.sh"
+load_manifest "$MANIFEST"
 : "${GITOLITE_USER:=szem-git}"
 : "${INSTANCE_HOST:=localhost}"
-: "${AGENT_KEYS_DIR:=/root/agent-keys}"
+: "${AGENT_KEYS_DIR:=/srv/szem/agent-keys}"       # musi byc CZYTELNY dla usera agenta (nie /root(700)) - fix #2
 : "${INSTANCE_DIR:=./instancja}"
 
 log(){ printf '[workspace] %s\n' "$*"; }
@@ -34,8 +35,8 @@ join_csv(){ local IFS=,; echo "$*"; }
 case " ${ROLES[*]:-} " in *" $ROLE "*) : ;; *) die "rola '$ROLE' nie jest w ROLES manifestu (${ROLES[*]:-brak})";; esac
 
 KEY="$AGENT_KEYS_DIR/$ROLE/id_ed25519"
-[ -f "$KEY" ] || die "brak klucza roli: $KEY — najpierw postaw instancje (bootstrap-instancji.sh)"
-chmod 600 "$KEY" 2>/dev/null || true
+[ -e "$KEY" ] || die "klucz roli niedostepny: $KEY (nie istnieje LUB parent nietraversowalny dla $(id -un) — np. /root(700)). Napraw: AGENT_KEYS_DIR czytelny dla usera agenta ALBO bootstrap z AGENT_OS_USER=$(id -un); jesli instancji nie ma — najpierw bootstrap-instancji.sh. - fix #2"
+[ -r "$KEY" ] || die "klucz $KEY istnieje ale NIECZYTELNY dla $(id -un): ustaw AGENT_KEYS_DIR na katalog czytelny dla usera agenta, LUB w bootstrapie AGENT_OS_USER=$(id -un) (klucze w /root sa root-only) - fix #2"
 
 WS="$INSTANCE_DIR/agenci/$AGENT"
 mkdir -p "$WS/skills"
