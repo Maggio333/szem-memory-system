@@ -15,3 +15,7 @@ Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (
 
 ## Status
 **WIP — v0 scaffold.** Struktura formatki (układ sektorów, mapowanie ról, szablony Beads/skille/dokumenty) projektowana kolaboracyjnie — Faza 0. To repo jest *miejscem*; mechanika dochodzi iteracyjnie.
+
+## Podstawa
+Domyślny system agentyczny formatki to **Omp (oh-my-pi)** — na nim stoi warstwa adaptera (`docs/adapter-omp.md`).
+Substrat jest od harnessu niezależny: system agentyczny można przepiąć, spełniając kontrakt adaptera (§2 tamże).
