@@ -1,6 +1,6 @@
 # Enforcement runbook — twarda izolacja sektorów (gitolite na dedykowanym userze)
 
-> Status: **propozycja Faza0** (branch `pr/enforcement-runbook`, do review). Operacjonalizuje [model-dostepu.md](model-dostepu.md) §1–2 (HARD = repo/remote/klucz per rola). Generic — zero treści instancji.
+> Status: **aktywny** (zmergowany do main; zweryfikowany e2e na realnej instancji). Operacjonalizuje [model-dostepu.md](model-dostepu.md) §1–2 (HARD = repo/remote/klucz per rola). Generic — zero treści instancji.
 
 ## Problem, który to zamyka
 
