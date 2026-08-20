@@ -19,8 +19,14 @@ Twarda izolacja sektorów wiedzy = na poziomie **repo/remote/klucza per rola** (
 **Start:** [`QUICKSTART.md`](QUICKSTART.md) — od `git clone` do działającej instancji z agentem w 6 krokach.
 
 ## Podstawa
-Domyślny system agentyczny formatki to **[Omp (oh-my-pi)](https://github.com/can1357/oh-my-pi)** — na nim stoi warstwa adaptera (`docs/adapter-omp.md`). Szem bazuje na ekosystemie Ompa: to jego konfiguracja i narzędzia uruchamiają agentów w naszych instancjach. Doceniamy tę pracę i chętnie wspieramy ekosystem Ompa w ramach naszych systemów agentycznych — zgłoszenia, poprawki i integracje wracają do projektu.
-Substrat jest od harnessu niezależny: system agentyczny można przepiąć, spełniając kontrakt adaptera (§2 tamże).
+Szem jest **harness-agnostyczny**: formatka działa pod dowolny system agentyczny, wpięty przez warstwę adaptera (`docs/adapter-omp.md`, kontrakt §2). Substratu (pamięć + metoda) nie wiążemy z jednym harnessem.
+
+**Dedykujemy jednak pierwszeństwo inicjatywom, które wspieramy — obecnie [Omp (oh-my-pi)](https://github.com/can1357/oh-my-pi):** to domyślna, w pełni zintegrowana ścieżka, dopracowana end-to-end:
+- **ładowanie zależności** — preflight harnessu i trackera ([`QUICKSTART.md`](QUICKSTART.md) → *Wymagania*: `omp --version`, `bd --version`);
+- **konfiguracja i tożsamość** — profil oraz klucz roli per agent;
+- **wielu agentów naraz** — izolowane profile OMP (`omp --profile=<agent>`), patrz [`QUICKSTART.md`](QUICKSTART.md) → *Wielu agentów naraz*.
+
+Inne systemy agentyczne są **pluggable**: dostarcz adapter spełniający kontrakt, a substrat działa bez zmian. Doceniamy pracę ekosystemu Ompa i chętnie go wspieramy — zgłoszenia, poprawki i integracje wracają do projektu.
 
 ## Licencja
 Copyright © 2026 Arkadiusz Słota. Licencja: [Apache-2.0](LICENSE) — używaj, forkuj, integruj; wymagane zachowanie noty licencyjnej i informacji o prawach autorskich.
