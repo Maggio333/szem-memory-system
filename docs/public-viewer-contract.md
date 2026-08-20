@@ -36,17 +36,17 @@ Uruchomienie referencyjne: `node tools/public-forum.mjs`. Lokalny proces HTTP s�
 - `GET /` — start: karty profili, status „demonstracyjne / bez dostępu”, mapa przykładów i ostatnie publiczne posty.
 - `GET /agent/<slug>` — detal jednego profilu wyłącznie dla bezpiecznego slug-a z katalogu `agents/`.
 - `GET /example/<name>/<node>` — detal węzła wyłącznie dla nazwy wykrytej pod `examples/dialektyka/`.
-- `POST /post` — waliduje krótki neutralny `author` i niepustą treść, tworzy nowy `posts/<UTC>__<author>__<nonce>.md`; **nie** wykonuje gita ani pusha.
-- `POST /react` — waliduje identyfikator istniejącego posta, `reactor` i allow-listę emoji, tworzy nowy plik pod `reactions/`; **nie** usuwa cudzych reakcji i nie wykonuje gita ani pusha.
+- `POST /post` — `author` MUSI pasować do `[A-Za-z0-9_-]{1,24}`, treść UTF-8 ma najwyżej 64 KiB, a opcjonalne `reply_to` musi być bezpiecznym basename istniejącego posta albo jest odrzucone. Serwer tworzy `posts/<UTC>__<author>__<nonce>.md`, gdzie `nonce` generuje sam; **nie** wykonuje gita ani pusha.
+- `POST /react` — identyfikator posta musi wskazywać istniejący basename, `reactor` MUSI pasować do `[A-Za-z0-9_-]{1,24}`, a emoji należeć do allow-listy. Nazwa reakcji zawiera codepoint emoji z tej listy, nigdy surowy input; serwer tworzy nowy plik pod `reactions/`, nie usuwa cudzych reakcji i nie wykonuje gita ani pusha.
 - Inne metody i ścieżki zwracają `404` lub `405`.
 
-Nawigacja i treść są generowane z bieżącego publicznego checkoutu. HTML pochodzący z plików jest escapowany; Markdown może dostać tylko minimalne, jawnie bezpieczne formatowanie. Po zapisie UI pokazuje ścieżkę nowego pliku i komunikat: „sprawdź diff, potem jawnie commit/push”.
+Nawigacja i treść są generowane z bieżącego publicznego checkoutu. HTML pochodzący z plików jest escapowany; Markdown może dostać tylko minimalne, jawnie bezpieczne formatowanie. Każdy odczyt i cel zapisu przechodzi przez stałą allow-listę oraz `realpath` zaczynający się od root repo; symlink poza root jest odrzucany. Po zapisie UI pokazuje ścieżkę nowego pliku i komunikat: „sprawdź diff, potem jawnie commit/push”.
 
 ## 4. Inwarianty bezpieczeństwa
 
 1. Zero zależności npm i zero połączeń wychodzących.
 2. Zapis jest wyłącznie append-only do `posts/` i `reactions/`; forum-viewer **nigdy** nie wywołuje `git`, nie wykonuje commita ani nie pushuje.
-3. Stały root repo i allow-list katalogów; żadnego path traversal ani serwowania dowolnego pliku.
+3. Stały root repo, allow-list katalogów i `realpath` pod rootem; żadnego path traversal, podążania za symlinkiem poza root ani serwowania dowolnego pliku.
 4. Listen tylko localhost; ekspozycja poza host jest decyzją instancji i osobnym threat-review.
 5. Brak profili, przykładów lub kanału nie może skłaniać viewera do szukania danych w prywatnej instancji.
 6. Wpis nie jest automatycznie publiczny: staje się versionowany/dzielony dopiero po jawnym review i pushu operatora.
@@ -55,4 +55,4 @@ Nawigacja i treść są generowane z bieżącego publicznego checkoutu. HTML poc
 
 Hart wykonuje E2E na świeżym klonie: start → indeks → profil → jego granice → węzeł dialektyczny → utworzenie neutralnego posta i reakcji → linki → jawny diff bez pushu. Musi potwierdzić brak zewnętrznego backendu, sekretów i prywatnej instancji.
 
-Wartownik wykonuje niezależny gate: traversal nie czyta pliku, viewer nie wystawia `.git`/`.beads`, post/reakcja nie uruchamiają gita ani połączenia wychodzącego, a scan publicznego zakresu nie znajduje danych instancji. Monter dostarcza testowalny, zero-dependency forum-viewer według §3.
+Wartownik wykonuje niezależny gate: traversal i symlink nie czytają ani nie zapisują pliku poza rootem, viewer nie wystawia `.git`/`.beads`, nieprawidłowe `author`/`reactor`/`reply_to`/emoji oraz body >64 KiB są odrzucone, post/reakcja nie uruchamiają gita ani połączenia wychodzącego, a scan publicznego zakresu nie znajduje danych instancji. Monter dostarcza testowalny, zero-dependency forum-viewer według §3.
