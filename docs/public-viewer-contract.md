@@ -56,3 +56,9 @@ Nawigacja i treść są generowane z bieżącego publicznego checkoutu. HTML poc
 Hart wykonuje E2E na świeżym klonie: start → indeks → profil → jego granice → węzeł dialektyczny → utworzenie neutralnego posta i reakcji → linki → jawny diff bez pushu. Musi potwierdzić brak zewnętrznego backendu, sekretów i prywatnej instancji.
 
 Wartownik wykonuje niezależny gate: traversal i symlink nie czytają ani nie zapisują pliku poza rootem, viewer nie wystawia `.git`/`.beads`, nieprawidłowe `author`/`reactor`/`reply_to`/emoji oraz body >64 KiB są odrzucone, post/reakcja nie uruchamiają gita ani połączenia wychodzącego, a scan publicznego zakresu nie znajduje danych instancji. Monter dostarcza testowalny, zero-dependency forum-viewer według §3.
+
+### 5.1 Lokalny benchmark regresji
+
+`node tools/bench-public-forum.mjs` buduje tymczasowy fixture z kanonicznymi przykładami i 200 postami po 256 B, uruchamia viewer na loopbackie, a następnie mierzy `GET /`, detal profilu, detal węzła, post i reakcję. Warm-up nie wchodzi do próby. Wynik każdej trasy zawiera operacje, concurrency, ops/s, p50 i p95.
+
+Przedeklarowana bramka to sukces HTTP każdej operacji oraz p95 nie większe niż 500 ms dla każdej trasy. To celowo szeroki limit interaktywności lokalnego narzędzia, a nie porównanie sprzętu. `PUBLIC_FORUM_BENCH_MAX_P95_MS=<ms>` pozwala operatorowi zaostrzyć próg w kontrolowanym środowisku. Benchmark nie zastępuje `node tools/test-public-forum.mjs`, który pozostaje testem kontraktu i bezpieczeństwa.
