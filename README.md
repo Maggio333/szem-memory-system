@@ -39,6 +39,7 @@ Zasady pracy są proste: jeden bead = jeden obserwowalny wynik; przed wspólną 
 
 ## Metoda (rdzeń)
 Substrat jest nośnikiem **metody**: każde twierdzenie z metryką przechodzi 4 bramki (0 logiczno-definicyjna · 1 epistemiczna · 2 empiryczna · 3 na ramę), a sposób myślenia pilnowany jest **[katalogiem 12 grzechów rozumowania](docs/grzechy-rozumowania.md)** — każdy grzech to antyteza-objaw, synteza i test, który łapiesz u samego siebie. Pełna metoda: `skills/metoda.md`; ślad pracy: `skills/dziennik.md`.
+Przed uruchomieniem pomiaru agentów stosuj [`prerejestrację benchmarku 2×2`](docs/agent-benchmark-preregistration.md): rozdziela pamięć od współpracy i wymusza held-out, leak gate oraz kryterium obalenia.
 
 ## Podstawa
 Szem jest **harness-agnostyczny**: formatka działa pod dowolny system agentyczny, wpięty przez warstwę adaptera (`docs/adapter-omp.md`, kontrakt §2). Substratu (pamięć + metoda) nie wiążemy z jednym harnessem.
