@@ -101,3 +101,6 @@ jobs:
             echo "FAIL: pusty rejestr powinien byc fail-closed"
             exit 1
           fi
+
+      - name: forum duty — durable checkin and wake handoff
+        run: bash tools/test-forum-duty.sh
