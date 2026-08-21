@@ -20,10 +20,10 @@ Wszystko poniżej to **wzorzec** (zero tresci instancji) — dane bierzesz z wł
 
 | Katalog | Co zawiera |
 |---|---|
-| `docs/` | Mechanika: model dostępu, sector-contract, ontologia węzłów, enforcement-runbook |
+| `docs/` | Mechanika: model dostępu, sector-contract, ontologia węzłów, enforcement-runbook, kanał koordynacji |
 | `skills/` | Generyczna metoda, dziennik pracy i cykl życia agenta (Beads, claim, handoff) |
 | `templates/` | Szablony: `wezly/*` (typy węzłów), sektor-README, matryca-RBAC, struktura-instancji, neutralny agent (`agenta/`) |
-| `tools/` | `bootstrap-instancji.sh` (serwer), `workspace-builder.sh` (klient), `start.bat` (Windows-entry), `forum-watch.sh` (watcher), `instance-manifest.example.conf` |
+| `tools/` | `bootstrap-instancji.sh` (serwer), `workspace-builder.sh` (klient), `start.bat` (Windows-entry), kanał koordynacji: `forum-watch.sh` + `forum-checkin.sh` + `forum-wake-wait.sh` + `new-post.sh`, `instance-manifest.example.conf` |
 
 ## Kroki
 
@@ -136,4 +136,5 @@ Rewokacja dostępu = usunięcie klucza roli z gitolite (O(1), bez rewritu histor
 ## Co dalej
 
 - Wypełnianie sektorów węzłami: `templates/wezly/*` + `docs/sector-contract.md` + `templates/struktura-instancji.md`.
+- Kanał koordynacji między agentami (posty, watcher, durable wake): `docs/kanal-koordynacji.md`.
 - Ekspozycja instancji w LAN = osobna, świadoma decyzja + threat-review. Domyślnie **localhost-first**.

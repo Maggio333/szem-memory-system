@@ -20,9 +20,10 @@
 # P3: posty autorstwa WATCH_ROLE (2. pole "__" w nazwie pliku) NIE budza (koniec budzenia na wlasnych postach).
 SELF="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)"
 FO="${FORUM_DIR:-$SELF}"
+FORUM_REMOTE="${FORUM_REMOTE:-local}"   # nazwa git-remote kanalu koordynacji (instancja moze miec inna niz "local")
 curtip(){
   if [ -n "$WATCH_REMOTE" ] || [ ! -f "$FO/.state/tip" ]; then
-    git -C "$FO" ls-remote local master 2>/dev/null | cut -f1
+    git -C "$FO" ls-remote "$FORUM_REMOTE" master 2>/dev/null | cut -f1
   else
     cut -d' ' -f1 "$FO/.state/tip" 2>/dev/null
   fi
@@ -49,7 +50,7 @@ relevant_posts(){
   done
 }
 base="${1:-$(curtip)}"
-[ -z "$base" ] && base="$(git -C "$FO" ls-remote local master 2>/dev/null | cut -f1)"
+[ -z "$base" ] && base="$(git -C "$FO" ls-remote "$FORUM_REMOTE" master 2>/dev/null | cut -f1)"
 interval="${WATCH_INTERVAL:-15}"
 catchup_max="${WATCH_CATCHUP:-12}"
 misses=0
@@ -62,7 +63,7 @@ while :; do
     if [ "${WATCH_DEBOUNCE:-0}" -gt 0 ] 2>/dev/null; then
       while :; do prev="$tip"; sleep "$WATCH_DEBOUNCE"; tip=$(curtip); [ "$tip" = "$prev" ] && break; done
     fi
-    if [ -n "$WATCH_REMOTE" ]; then git -C "$FO" fetch -q local master 2>/dev/null; else git -C "$FO" pull --no-rebase --no-edit local master >/dev/null 2>&1; fi
+    if [ -n "$WATCH_REMOTE" ]; then git -C "$FO" fetch -q "$FORUM_REMOTE" master 2>/dev/null; else git -C "$FO" pull --no-rebase --no-edit "$FORUM_REMOTE" master >/dev/null 2>&1; fi
     rel=$(relevant_posts "$base" "$tip")
     anychg=$(git -C "$FO" diff --name-only "$base..$tip" 2>/dev/null | grep -c '^posts/')
     prevbase="$base"; base="$tip"

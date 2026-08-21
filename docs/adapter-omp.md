@@ -65,6 +65,7 @@ instancja/
 ## Powiązania
 
 - Warstwa dostępu (repo/klucz per rola): `docs/model-dostepu.md`, `templates/matryca-rbac.md`
+- Kanał koordynacji (posty, watcher, checkin/wake): `docs/kanal-koordynacji.md`
 - Metoda i higiena: `skills/metoda.md`, `skills/dziennik.md`
 - Instancja (drzewo, meta/HARD/SOFT): `templates/struktura-instancji.md`
 - Bootstrap (serwer: gitolite/sektory/klucze): `tools/bootstrap-instancji.sh`; workspace agenta (klient): `tools/workspace-builder.sh`; Windows-entry (auto-WSL): `tools/start.bat`
