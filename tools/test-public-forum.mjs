@@ -22,9 +22,10 @@ async function form(base, pathname, values) {
   });
 }
 
+let escaped;
 try {
   await cp(path.join(root, 'examples'), path.join(fixture, 'examples'), { recursive: true });
-  const escaped = await mkdtemp(path.join(tmpdir(), 'szem-public-forum-outside-'));
+  escaped = await mkdtemp(path.join(tmpdir(), 'szem-public-forum-outside-'));
   await writeFile(path.join(escaped, 'profil.yml'), 'imie: Escape\n');
   let symlinkCheck = true;
   try {
@@ -83,4 +84,5 @@ try {
 } finally {
   await new Promise((resolve) => server?.close(resolve) ?? resolve());
   await rm(fixture, { recursive: true, force: true });
+  if (escaped) await rm(escaped, { recursive: true, force: true });
 }
