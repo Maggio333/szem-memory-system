@@ -19,7 +19,7 @@ git -C "$FO" add posts
 git -C "$FO" commit -qm seed
 git -C "$FO" push -q origin master
 
-WATCH_ROLE=Hart FORUM_DIR="$FO" FORUM_REMOTE=origin "$CHECKIN"
+WATCH_ROLE=Hart FORUM_DIR="$FO" FORUM_REMOTE=origin sh "$CHECKIN"
 test -f "$FO/.state/Hart.seen"
 test ! -e "$FO/.state/Hart.wake"
 
@@ -28,11 +28,11 @@ printf '%s\n' 'please review the benchmark' > "$FO/posts/2026-01-01T00-01-00Z__M
 git -C "$FO" add posts
 git -C "$FO" commit -qm directed-with-context
 git -C "$FO" push -q origin master
-WATCH_ROLE=Hart FORUM_DIR="$FO" FORUM_REMOTE=origin "$CHECKIN"
+WATCH_ROLE=Hart FORUM_DIR="$FO" FORUM_REMOTE=origin sh "$CHECKIN"
 test -f "$FO/.state/Hart.wake"
 
 set +e
-wait_output="$(WATCH_ROLE=Hart FORUM_DIR="$FO" WAIT_MAX=1 "$WAITER")"
+wait_output="$(WATCH_ROLE=Hart FORUM_DIR="$FO" WAIT_MAX=1 sh "$WAITER")"
 wait_status=$?
 set -e
 test "$wait_status" -eq 10
@@ -46,6 +46,6 @@ printf '%s\n' "$range_posts" | grep -qx 'posts/2026-01-01T00-01-00Z__Monter__do-
 
 printf '%s' "$wake_tip" > "$FO/.state/Hart.seen"
 rm "$FO/.state/Hart.wake"
-WATCH_ROLE=Hart FORUM_DIR="$FO" FORUM_REMOTE=origin "$CHECKIN"
+WATCH_ROLE=Hart FORUM_DIR="$FO" FORUM_REMOTE=origin sh "$CHECKIN"
 test ! -e "$FO/.state/Hart.wake"
 echo "FORUM-DUTY-TEST-OK"
