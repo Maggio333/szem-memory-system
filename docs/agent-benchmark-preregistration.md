@@ -100,6 +100,20 @@ zahashowane dozwolone evidence spans i `answer_projection` oracle. Dla H1/H3
 odpowiedzi oracle. Oracle nie jest montowany do Szem ani promptu. Niezależny
 verifier porównuje hash task packu, store'u i oracle przed każdym ramieniem.
 
+### Pilot pięciu itemów
+
+Decyzja operatora z 2026-08-21: pierwszy płatny przebieg jest pilotem pięciu
+itemów, nie pełnym badaniem stu. `tools/agent-benchmark.py pilot` wybiera
+deterministycznie po jednym itemie z każdego schematu przez najniższy
+`SHA-256("E-AGENT-2X2/v1/pilot/v1/<seed>/<item-id>")`; manifest zapisuje seed,
+hash packu i pięć ID. Pilot wykonuje 20 armów, nie 400.
+
+Pilot sprawdza szczelność runnera, role, memory OFF/ON oraz koszt. **Nie** testuje
+prerejestrowanej tezy o efekcie pamięci i nie raportuje bootstrap CI — pięć
+obserwacji nie daje tej podstawy. Pozostałe 95 pytań task packu mogą być
+udostępnione ludziom/reviewerom w prywatnej instancji; oracle i seed pozostają
+wyłącznie po stronie verifera, poza home/promptami agentów.
+
 ## Metryki i progi
 
 Nie ma jednego uśrednionego „score agenta”. Raport zawiera oddzielnie:

@@ -44,6 +44,15 @@ def main():
         assert "seed" not in pack
         assert pack_manifest["runtime_files"] == ["task-pack.json"]
         assert pack_manifest["verifier_only_files"] == ["oracle.json", "verifier-provenance.json"]
+        pilot_first, pilot_second = root / "pilot-first.json", root / "pilot-second.json"
+        run("pilot", "--pack", str(first), "--output", str(pilot_first), "--selection-seed", "20260821")
+        run("pilot", "--pack", str(first), "--output", str(pilot_second), "--selection-seed", "20260821")
+        pilot = json.loads(pilot_first.read_text(encoding="utf-8"))
+        assert pilot_first.read_bytes() == pilot_second.read_bytes(), "same pilot seed must produce byte-identical manifests"
+        assert pilot["kind"] == "five-item-feasibility-pilot"
+        assert pilot["runs"] == 20
+        assert {item["schema"] for item in pilot["selected_items"]} == {"E1", "E2", "H1", "H2", "H3"}
+        assert "cannot test" in pilot["interpretation_limit"]
 
         manifest = root / "run-manifest.json"
         run(

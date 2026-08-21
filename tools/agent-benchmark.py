@@ -248,6 +248,44 @@ def hex_argument(value, name, length, kind):
     return value
 
 
+def select_pilot(args):
+    pack_root = Path(args.pack)
+    pack_manifest = validate_pack(pack_root)
+    output = Path(args.output)
+    if output.exists():
+        raise ValueError("output file already exists; pilot manifest is write-once")
+    task_pack = read_json(pack_root / "task-pack.json")
+    selected = []
+    for schema in SCHEMAS:
+        candidates = [item for item in task_pack["items"] if item["schema"] == schema]
+        if not candidates:
+            raise ValueError(f"pilot selection has no {schema} item")
+        item = min(
+            candidates,
+            key=lambda candidate: sha256_bytes(
+                f"{VERSION}/pilot/v1/{args.selection_seed}/{candidate['id']}".encode("utf-8")
+            ),
+        )
+        selected.append({"id": item["id"], "schema": schema, "stratum": item["stratum"]})
+    manifest = {
+        "version": VERSION,
+        "kind": "five-item-feasibility-pilot",
+        "selection": {
+            "method": "one lowest SHA-256-ranked item per schema",
+            "seed": args.selection_seed,
+            "hash_domain": f"{VERSION}/pilot/v1",
+        },
+        "pack_manifest_sha256": sha256_bytes((pack_root / "pack-manifest.json").read_bytes()),
+        "task_pack_sha256": pack_manifest["task_pack_sha256"],
+        "selected_items": selected,
+        "runs": len(selected) * 4,
+        "interpretation_limit": "Feasibility only; this sample cannot test the preregistered memory-effect claim or estimate its confidence interval.",
+    }
+    output.parent.mkdir(parents=True, exist_ok=True)
+    write_json(output, manifest)
+    print(json.dumps({"manifest": str(output), "items": len(selected), "runs": manifest["runs"]}, ensure_ascii=False, sort_keys=True))
+
+
 def prepare(args):
     pack = validate_pack(args.pack)
     output = Path(args.output)
@@ -311,6 +349,11 @@ def main(argv):
     check = sub.add_parser("validate", help="validate a generated pack")
     check.add_argument("--pack", required=True)
     check.set_defaults(func=lambda args: print(json.dumps(validate_pack(args.pack), ensure_ascii=False, sort_keys=True)))
+    pilot = sub.add_parser("pilot", help="write a deterministic five-item feasibility-pilot manifest")
+    pilot.add_argument("--pack", required=True)
+    pilot.add_argument("--output", required=True)
+    pilot.add_argument("--selection-seed", type=int, required=True)
+    pilot.set_defaults(func=select_pilot)
     prep = sub.add_parser("prepare", help="write a fixed 2x2 execution manifest without running agents")
     prep.add_argument("--pack", required=True)
     prep.add_argument("--output", required=True)
