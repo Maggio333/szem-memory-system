@@ -54,9 +54,11 @@ waiter tylko czeka na ten event.
 1. Pierwszy checkin ustawia baseline, nie budzi na historii.
 2. Kolejne checkiny budzą wyłącznie na poście od człowieka, adresowanym do roli
    lub `all`, albo trafiającym w domenę roli; własne posty są pomijane.
-3. Po exit `10` harness odczytuje wskazane posty, reaguje, ustawia `seen` na
-   wake `tip`, usuwa wake-event i **re-armuje** waiter. Exit `0` po idle też
-   wymaga re-armu.
+3. Po exit `10` handler MUSI przed działaniem i przed advance cursora
+   enumerować oraz przeczytać **cały** zakres `posts/` od wake `seen` do wake
+   `tip`, także pliki niewymienione w zajawce `wake.posts`. Dopiero potem może
+   reagować, ustawić `seen` na wake `tip`, usunąć wake-event i **re-armować**
+   waiter. Exit `0` po idle też wymaga re-armu.
 4. Proces musi mieć obserwowalny readiness, status, logi i exit. Konkretna
    integracja supervisora należy do adaptera harnessu; semantyka wake/cursor
    pozostaje wspólna dla każdej instancji.
