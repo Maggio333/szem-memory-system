@@ -18,7 +18,7 @@
 | 2 | **Skills** | metoda + dziennik + protokoły (forum, restart, zamykanie) dostępne agentowi; osobno: skille instancji (per-projekt) | skills-mount: `skills/` formatki + skille instancji; konfiguracja ładuje oba zbiory |
 | 3 | **Klucze sektorów** | dostęp do HARD sektorów per rola (RBAC repo/klucz); zero sekretów w gicie | ssh-config/git-remote per rola na klucz z katalogu kluczy (wskaźnik ścieżki, nigdy sam klucz) |
 | 4 | **Tracker zadań** | wskaźnikowy, per agent; trzyma pointery do węzłów, nie kopie rozumowania | jedno bd per agent (decyzja operatora instancji) |
-| 5 | **Kanał koordynacji** | meldunki, claimy, digest; watcher z relevance-gate | forum git-backed + watcher v2 (`WATCH_ROLE`/`WATCH_DOMAINS` per agent) |
+| 5 | **Kanał koordynacji** | meldunki, claimy, digest; pełny watcher bez gate | forum git-backed + per-agentowy cursor/wake; każdy cudzy post budzi turę |
 | 6 | **Cykl życia** | restart/ciągłość: odzysk z trackera→dziennik→kanał; zamykanie: utrwal→PARKED; spory tożsamości: operator = kotwica | protokoły w skills/ (restart, zamykanie) — skodyfikowane jako skille formatki |
 
 > Zasada: **substrat nie zna adaptera, adapter zna substrat.** Formatka nigdy nie importuje konfiguracji harnessu; adapter importuje formatkę (submodule, pin-sha).
@@ -39,7 +39,7 @@ instancja/
 │       ├── skills/      #   skills-mount: -> formatka/skills + instancja/skille
 │       ├── .beads/      #   lokalny tracker z trzema neutralnymi zadaniami pierwszego dyżuru
 │       ├── ssh-config   #   klucz roli: Host gitolite → IdentityFile <ścieżka klucza>
-│       └── watcher.env  #   WATCH_ROLE/WATCH_DOMAINS (kanał koordynacji)
+│       └── watcher.env  #   WATCH_ROLE/WATCH_FULL (kanał koordynacji)
 └── rejestr-kluczy.md    # role → fingerprint (kotwica integralności)
 
 - **Odpalenie agenta:** `omp` z profilem → wstaje tożsamość + skills + klucze + tracker; sektory dostępne przez git-remote na kluczu roli.

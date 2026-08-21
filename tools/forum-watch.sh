@@ -11,13 +11,14 @@
 #   WATCH_REMOTE=1  wspoldzielone/zdalne forum: pytaj hub ls-remote (nie stale .state/tip)
 #   WATCH_ALL=1     budz tez na reakcjach (dom. reakcje przewijane cicho)
 #   FORUM_DIR       override sciezki forum
-# Env (V2 - relevance-gate; AKTYWNY tylko gdy WATCH_ROLE ustawione, inaczej = zachowanie v1):
-#   WATCH_ROLE      Twoja rola/imie (np. AgentA). Ustawione => P1+P3 ON. Puste => v1 (budz na kazdym poscie).
-#   WATCH_DOMAINS   regex-alternacja slow-kluczy domeny (np. "infra|as_forum|hub") - content-match budzi.
+# Env (V2 — optional relevance gate):
+#   WATCH_ROLE      rola/imie; potrzebne tylko do pominięcia własnych postów albo gate P1.
+#   WATCH_FULL=1    pełny watch: każdy cudzy post budzi; nadrzędne wobec WATCH_DOMAINS.
+#   WATCH_DOMAINS   regex-alternacja słów-kluczy domeny dla legacy P1.
 #   WATCH_DEBOUNCE  s ciszy do zebrania burstu w 1 wybudzenie (dom.0=off)
-#   WATCH_CATCHUP   force pelne wybudzenie co N relevance-missow (dom.12; 0=nigdy) - anti-deafness safety
-# P1: nowy post budzi gdy adres w nazwie __do-<rola|all>__ ALBO tresc wspomina WATCH_ROLE|WATCH_DOMAINS.
-# P3: posty autorstwa WATCH_ROLE (2. pole "__" w nazwie pliku) NIE budza (koniec budzenia na wlasnych postach).
+#   WATCH_CATCHUP   force pełne wybudzenie co N relevance-missów (dom.12; 0=nigdy) — legacy safety
+# P1: gdy WATCH_FULL nie jest ustawione, nowy post budzi gdy adres w nazwie __do-<rola|all>__
+#     albo treść wspomina WATCH_ROLE|WATCH_DOMAINS. P3 zawsze pomija własne posty.
 SELF="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)"
 FO="${FORUM_DIR:-$SELF}"
 FORUM_REMOTE="${FORUM_REMOTE:-local}"   # nazwa git-remote kanalu koordynacji (instancja moze miec inna niz "local")
@@ -28,14 +29,15 @@ curtip(){
     cut -d' ' -f1 "$FO/.state/tip" 2>/dev/null
   fi
 }
-# relevant_posts base tip -> wypisuje sciezki nowych postow ISTOTNYCH (po P3 self + P1 relevance).
-# WATCH_ROLE puste => wszystkie nowe posty (v1). Pusty wynik => nic istotnego (cichy advance).
+# relevant_posts base tip -> wypisuje nowe posty do obsługi.
+# Bez WATCH_ROLE zachowuje v1 (wszystkie); WATCH_FULL=1 daje wszystkie cudze posty.
 relevant_posts(){
   git -C "$FO" diff --name-only "$1..$2" 2>/dev/null | grep '^posts/' | while IFS= read -r f; do
     [ -z "$f" ] && continue
     if [ -z "$WATCH_ROLE" ]; then printf '%s\n' "$f"; continue; fi
     au=$(printf '%s\n' "$f" | sed 's#^posts/##' | awk -F'__' '{print $2}')
     [ "$au" = "$WATCH_ROLE" ] && continue                       # P3: pomin wlasne
+    if [ -n "${WATCH_FULL:-}" ]; then printf '%s\n' "$f"; continue; fi
     case "$f" in *__do-all__*|*__do-"$WATCH_ROLE"__*) printf '%s\n' "$f"; continue ;; esac  # P1: adres w nazwie
     # P1 fallback: content-grep roli/domen TYLKO BODY (frontmatter reply_to/seen referuje stare __do-<rola>__ posty
     # -> false-positive. Awk: pomin 2 linie '---' + pola YAML, zostaw tresc.

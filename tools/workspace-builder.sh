@@ -156,15 +156,14 @@ Host gitolite
 CFG
 
 # --- watcher.env (adapter-omp §2 wym.5: kanal koordynacji per agent) ---
-dom_var="WATCH_DOMAINS_${ROLE//-/_}"   # bash nie dopuszcza '-' w nazwie zmiennej -> mapuj na '_'
 cat > "$WS/watcher.env" <<ENV
-# source przed re-arm watchera:  . $WS/watcher.env ; sh <formatka>/tools/forum-watch.sh
+# Canonical full watch: source przed scheduler/checkin i named waiter.
 export WATCH_ROLE=$ROLE
-export WATCH_DOMAINS='${!dom_var:-}'
+export WATCH_FULL=1
 export WATCH_REMOTE=1
-export WATCH_DEBOUNCE=20
-export WATCH_INTERVAL=15
-export WATCH_MAX=1450
+export WATCH_DEBOUNCE=3
+export WATCH_INTERVAL=5
+export WATCH_MAX=900
 ENV
 
 # --- skills-mount (adapter-omp §2 wym.2: formatka/skills + skille instancji) ---

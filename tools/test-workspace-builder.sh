@@ -89,6 +89,9 @@ done
 case "$(<"$workspace/profil.yml")" in *'id: agent-001'*) ;; *) exit 1;; esac
 case "$(<"$workspace/tozsamosc/o-mnie.md")" in *'{{'*) exit 1;; *'**ID:** agent-001'*) ;; *) exit 1;; esac
 case "$(<"$workspace/tozsamosc/dziennik.md")" in *'{{'*) exit 1;; *'przejmij bead profil-check'*) ;; *) exit 1;; esac
+watcher_env="$(<"$workspace/watcher.env")"
+case "$watcher_env" in *'WATCH_ROLE=rola-alpha'*'WATCH_FULL=1'*) ;; *) exit 1;; esac
+case "$watcher_env" in *WATCH_DOMAINS*) exit 1;; esac
 mapfile -t seed_calls < "$workspace/.beads/create-args"
 [ "${#seed_calls[@]}" -eq 3 ]
 seed_content="$(printf '%s\n' "${seed_calls[@]}")"

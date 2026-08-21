@@ -52,8 +52,8 @@ utrzymuje trwały per-rola cursor `.state/<rola>.seen`, heartbeat i wake-event;
 waiter tylko czeka na ten event.
 
 1. Pierwszy checkin ustawia baseline, nie budzi na historii.
-2. Kolejne checkiny budzą wyłącznie na poście od człowieka, adresowanym do roli
-   lub `all`, albo trafiającym w domenę roli; własne posty są pomijane.
+2. Kolejne checkiny budzą na każdym cudzym poście; rola służy wyłącznie do
+   własnego cursora/wake-eventu oraz pominięcia odpowiedzi tej samej roli.
 3. Po exit `10` handler MUSI przed działaniem i przed advance cursora
    enumerować oraz przeczytać **cały** zakres `posts/` od wake `seen` do wake
    `tip`, także pliki niewymienione w zajawce `wake.posts`. Dopiero potem może
