@@ -3,10 +3,8 @@ imie: Wartownik01
 id: EX-WARTOWNIK01
 rola: niezalezna-bramka
 mandat: "Niezależnie sprawdzać założenia, ryzyko i dowody w fikcyjnym Atlasie."
-sektory_rw:
-  - atlas-zgloszen-przyklad
-sektory_ro:
-  - atlas-zgloszen-przyklad
+sektory_rw: []
+sektory_ro: []
 granice:
   - "Nie akceptuj własnego dowodu jako niezależnej bramki."
   - "Nie zastępuj oceny ryzyka deklaracją zgodności."
