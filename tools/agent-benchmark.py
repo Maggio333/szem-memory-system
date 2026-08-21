@@ -285,7 +285,12 @@ def prepare(args):
         },
         "runner_sha256": runner_sha,
         "decoding": {"temperature": 0, "thinking": "high"},
-        "budgets": {"input_tokens": args.input_tokens, "output_tokens": args.output_tokens, "tool_calls": args.tool_calls, "wall_seconds": args.wall_seconds},
+        "budget_policy": {
+            "wall_seconds": {"limit": args.wall_seconds, "enforcement": "hard", "on_exceed": "incomplete_fail"},
+            "input_tokens": {"reference_limit": args.input_tokens, "enforcement": "recorded", "on_exceed": "report"},
+            "output_tokens": {"reference_limit": args.output_tokens, "enforcement": "recorded", "on_exceed": "report"},
+            "tool_calls": {"reference_limit": args.tool_calls, "enforcement": "recorded", "on_exceed": "report"},
+        },
         "trials_per_item_arm": 1,
         "retry_policy": "infrastructure failure before answer reruns all four arms for the item",
         "schedule_seed": args.schedule_seed,

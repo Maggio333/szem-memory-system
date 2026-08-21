@@ -59,6 +59,8 @@ def main():
         assert prepared["runtime"]["selector"] == "anthropic/claude-opus-4-8"
         assert prepared["runtime"]["omp_version"] == "17.3.5"
         assert prepared["runtime"]["retry"] == {"model_fallback": False, "per_arm": False}
+        assert prepared["budget_policy"]["wall_seconds"] == {"limit": 900, "enforcement": "hard", "on_exceed": "incomplete_fail"}
+        assert prepared["budget_policy"]["input_tokens"] == {"reference_limit": 12000, "enforcement": "recorded", "on_exceed": "report"}
         assert prepared["protocol_commit"] == GIT_A
         assert prepared["runner_sha256"] == SHA_B
 

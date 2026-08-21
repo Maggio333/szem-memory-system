@@ -72,10 +72,12 @@ To pełny układ czynnikowy $2 \times 2$:
 
 Zespół ma zawsze trzy ustalone role: koordynator, analityk i weryfikator.
 Profile ról, prompt systemowy, model, temperatura, dostępne narzędzia,
-uprawnienia, limit wywołań, limit tokenów i wall-clock budget są identyczne
+uprawnienia, referencyjne limity kosztu i wall-clock budget są identyczne
 pomiędzy parami OFF/ON. Jedyną zmienną w parze S0/S1 lub T0/T1 jest substrat
 pamięci. Przed każdym itemem runner rozpoczyna czystą bieżącą sesję; S1/T1
-widzą wyłącznie zatwierdzone artefakty wcześniejszej sesji tego itemu.
+widzą wyłącznie zatwierdzone artefakty wcześniejszej sesji tego itemu. OMP
+twardo zatrzymuje tylko wall clock; tokeny i wywołania narzędzi są zapisywane
+z odpowiedzi providera jako koszt, nie są udawanym hard capem.
 
 ## Held-out task pack
 
@@ -135,6 +137,14 @@ Nie ma jednego uśrednionego „score agenta”. Raport zawiera oddzielnie:
   Jest jeden trial na item i ramię. Awaria infrastruktury przed odpowiedzią
   unieważnia cały czteroramienny item i wymaga ponownego uruchomienia wszystkich
   jego ramion z tym samym manifestem; retry pojedynczego ramienia jest zabronione.
+
+### Budżet
+
+`wall_seconds` jest twardym `omp --max-time`: przekroczenie daje
+`incomplete_fail` danego ramienia i pozostaje w mianowniku. `input_tokens`,
+`output_tokens` i `tool_calls` są predeklarowanymi wartościami odniesienia;
+runner zapisuje rzeczywiste usage z metadata odpowiedzi, a przekroczenie jest
+raportowanym wynikiem kosztowym — nie usuwa itemu ani nie zmienia task success.
 
 Próg tezy pamięci: dolna granica 95% CI paired memory delta dla wszystkich
 predeclared `memory-required` itemów na trudnym stratum jest większa od zera
