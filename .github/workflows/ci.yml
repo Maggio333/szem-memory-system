@@ -104,3 +104,6 @@ jobs:
 
       - name: forum duty — durable checkin and wake handoff
         run: bash tools/test-forum-duty.sh
+
+      - name: forum full watch — foreign wake and own-post skip
+        run: bash tools/test-forum-watch-full.sh
