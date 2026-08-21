@@ -52,8 +52,8 @@ Run nie może wystartować, dopóki wszystkie warunki są spełnione:
    metadanych store'u. Semantyczna parafraza pozostaje jawnie poza zasięgiem
    mechanicznego skanu i przechodzi deterministyczny human-check; każde
    trafienie powoduje FAIL;
-3. task pack, oracle, rubryka, seed generatora, wersje modelu i runnera oraz
-   poniższe progi są zacommitowane przed pierwszym runem;
+3. task pack, oracle, rubryka, seed generatora, manifest runtimeu OMP oraz SHA
+   runnera są zacommitowane przed pierwszym runem;
 4. operator zatwierdzi task pack i independent-hardware replication plan.
 
 Żaden wynik nie jest publikowany ani nazywany wynikiem agenta przed przejściem
@@ -127,11 +127,14 @@ Nie ma jednego uśrednionego „score agenta”. Raport zawiera oddzielnie:
   `answer_projection` występuje poza dozwolonymi spanami; czy pojawia się w
   bieżącym promptcie/profilu/config/metadata; czy jedna karta H1/H3 zawiera
   pełną syntezę albo recovery. FAIL jednego pytania zatrzymuje run.
-- **Model i retry:** manifest pin-uje model artifact SHA, runner SHA i
-  temperatura `0` z greedy decoding; seed API ma wartość `20260821`. Jest
-  jeden trial na item i ramię. Awaria infrastruktury przed odpowiedzią unieważnia
-  cały czteroramienny item i wymaga ponownego uruchomienia wszystkich jego
-  ramion z tym samym manifestem; retry pojedynczego ramienia jest zabronione.
+- **Runtime i retry:** manifest pin-uje OMP `17.3.5`, provider `anthropic`,
+  model `claude-opus-4-8`, thinking `high`, temperaturę `0`, SHA runnera oraz
+  wyłączenie model fallback. Providerowy identyfikator **nie jest niezmiennym
+  artifact SHA** i OMP nie przekazuje deterministic API seed; każdy arm zapisuje
+  request/response metadata, a ograniczenie reprodukowalności jest raportowane.
+  Jest jeden trial na item i ramię. Awaria infrastruktury przed odpowiedzią
+  unieważnia cały czteroramienny item i wymaga ponownego uruchomienia wszystkich
+  jego ramion z tym samym manifestem; retry pojedynczego ramienia jest zabronione.
 
 Próg tezy pamięci: dolna granica 95% CI paired memory delta dla wszystkich
 predeclared `memory-required` itemów na trudnym stratum jest większa od zera

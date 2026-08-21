@@ -48,14 +48,17 @@ def main():
         manifest = root / "run-manifest.json"
         run(
             "prepare", "--pack", str(first), "--output", str(manifest),
-            "--protocol-commit", GIT_A, "--model-sha", SHA_A, "--runner-sha", SHA_B,
+            "--protocol-commit", GIT_A, "--omp-version", "17.3.5", "--runner-sha", SHA_B,
             "--input-tokens", "12000", "--output-tokens", "2000", "--tool-calls", "40", "--wall-seconds", "900",
         )
         prepared = json.loads(manifest.read_text(encoding="utf-8"))
         assert set(prepared["arms"]) == {"S0", "S1", "T0", "T1"}
         assert len(prepared["schedule"]) == 400
         assert prepared["oracle_must_not_mount"] is True
-        assert prepared["decoding"] == {"api_seed": 20260821, "mode": "greedy", "temperature": 0}
+        assert prepared["decoding"] == {"temperature": 0, "thinking": "high"}
+        assert prepared["runtime"]["selector"] == "anthropic/claude-opus-4-8"
+        assert prepared["runtime"]["omp_version"] == "17.3.5"
+        assert prepared["runtime"]["retry"] == {"model_fallback": False, "per_arm": False}
         assert prepared["protocol_commit"] == GIT_A
         assert prepared["runner_sha256"] == SHA_B
 
@@ -66,12 +69,12 @@ def main():
         run("validate", "--pack", str(broken), ok=False)
         run(
             "prepare", "--pack", str(first), "--output", str(root / "bad.json"),
-            "--protocol-commit", GIT_A, "--model-sha", "invalid", "--runner-sha", SHA_B,
+            "--protocol-commit", GIT_A, "--omp-version", "invalid", "--runner-sha", SHA_B,
             "--input-tokens", "1", "--output-tokens", "1", "--tool-calls", "1", "--wall-seconds", "1", ok=False,
         )
         run(
             "prepare", "--pack", str(first), "--output", str(root / "bad-runner.json"),
-            "--protocol-commit", GIT_A, "--model-sha", SHA_A, "--runner-sha", "invalid",
+            "--protocol-commit", GIT_A, "--omp-version", "17.3.5", "--runner-sha", "invalid",
             "--input-tokens", "1", "--output-tokens", "1", "--tool-calls", "1", "--wall-seconds", "1", ok=False,
         )
     print("AGENT-BENCHMARK-TEST-OK")

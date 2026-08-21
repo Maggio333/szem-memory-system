@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import random
+import re
 import shutil
 import sys
 from collections import Counter
@@ -252,9 +253,10 @@ def prepare(args):
     output = Path(args.output)
     if output.exists():
         raise ValueError("output file already exists; manifest is write-once")
-    model_sha = hex_argument(args.model_sha, "model_sha", 64, "SHA-256")
     protocol_commit = hex_argument(args.protocol_commit, "protocol_commit", 40, "Git SHA-1")
     runner_sha = hex_argument(args.runner_sha, "runner_sha", 64, "SHA-256")
+    if not re.fullmatch(r"\d+\.\d+\.\d+", args.omp_version):
+        raise ValueError("omp_version must be a semantic version such as 17.3.5")
     schedule = [{"item_id": item_id, "arm": arm} for item_id in [f"{schema}-{ordinal:03d}" for schema in SCHEMAS for ordinal in range(1, 21)] for arm in ("S0", "S1", "T0", "T1")]
     random.Random(args.schedule_seed).shuffle(schedule)
     manifest = {
@@ -270,9 +272,19 @@ def prepare(args):
             "T0": {"agents": ["coordinator", "analyst", "verifier"], "memory": "off"},
             "T1": {"agents": ["coordinator", "analyst", "verifier"], "memory": "Szem files-first/retrieval"},
         },
-        "model_artifact_sha256": model_sha,
+        "runtime": {
+            "kind": "remote-provider",
+            "provider": "anthropic",
+            "model": "claude-opus-4-8",
+            "selector": "anthropic/claude-opus-4-8",
+            "omp_version": args.omp_version,
+            "thinking": "high",
+            "temperature": 0,
+            "retry": {"model_fallback": False, "per_arm": False},
+            "reproducibility_limit": "The provider model identifier is recorded, but it is not an immutable model artifact; record request and response metadata for every arm.",
+        },
         "runner_sha256": runner_sha,
-        "decoding": {"temperature": 0, "mode": "greedy", "api_seed": 20260821},
+        "decoding": {"temperature": 0, "thinking": "high"},
         "budgets": {"input_tokens": args.input_tokens, "output_tokens": args.output_tokens, "tool_calls": args.tool_calls, "wall_seconds": args.wall_seconds},
         "trials_per_item_arm": 1,
         "retry_policy": "infrastructure failure before answer reruns all four arms for the item",
@@ -298,7 +310,7 @@ def main(argv):
     prep.add_argument("--pack", required=True)
     prep.add_argument("--output", required=True)
     prep.add_argument("--protocol-commit", required=True)
-    prep.add_argument("--model-sha", required=True)
+    prep.add_argument("--omp-version", required=True)
     prep.add_argument("--runner-sha", required=True)
     prep.add_argument("--input-tokens", type=int, required=True)
     prep.add_argument("--output-tokens", type=int, required=True)
