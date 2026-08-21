@@ -44,6 +44,9 @@ jobs:
       - name: walidator węzłów — selftest
         run: python3 tools/validate-wezly.py --selftest
 
+      - name: benchmark agentów — deterministyczny pack i manifest
+        run: python3 tools/test-agent-benchmark.py
+
       - name: scrub-gate — historia zakresu pusha
         shell: bash
         run: |
