@@ -128,6 +128,19 @@ omp --profile=B --cwd=instancja/agenci/B --append-system-prompt=instancja/agenci
 
 Izolację **sektorów** między panelami egzekwuje gitolite (klucz roli w `ssh-config`/`GIT_SSH_COMMAND`), nie terminal: agent A nie sklonuje sektorów agenta B (`[DENY]`), nawet na tej samej maszynie. **Nie współdziel working copy między agentami** (race na checkout/branch) — wspólne są tylko remote'y (gitolite) i kanał koordynacji.
 
+### 5c. Tryb jednoprocesowy — jeden proces, wiele ról
+
+Alternatywa dla 5b, gdy koszt koordynacji dominuje: **jeden proces omp (orkiestrator)** na workspace zbudowanym krokiem 4, a role to **subagenci harnessu** spawnowani per zadanie (mechanika i tabela różnic: `docs/adapter-omp.md` §3b).
+
+- **Windows:** `tools\start.bat run ..\moja-instancja.conf <agent_slug>`
+- **Linux/WSL:** `bash tools/run-agent.sh ../moja-instancja.conf <agent_slug>`
+
+`<agent_slug>` wskazuje workspace **orkiestratora** (zbudowany krokiem 4). Orkiestrator spawnuje rolę per zadanie z primingiem z workspace'u tej roli: `profil.yml` + `tozsamosc/o-mnie.md` z `instancja/agenci/<rola_slug>/` + **wąski prompt** pod konkretne zadanie. Rola nie prowadzi własnej sesji ani watchera; jedyny watcher kanału trzyma orkiestrator. Rola publikuje posty na kanale **sama**, zawsze z własnego izolowanego clone'a repo kanału (mktemp) i pushuje z retry pull-first (max 3 próby), autor = rola. Tracker: bd orkiestratora, wpisy tagowane `[<rola>]`; claim-before-act obowiązuje jak zawsze.
+
+> **OSTRZEŻENIE RBAC:** subagent dziedziczy proces, środowisko i klucze ORKIESTRATORA — hard-RBAC per rola **NIE działa** wewnątrz jednego procesu. Role w 5c = podział pracy, nie izolacja sektorów. Orkiestratora odpalaj na kluczu roli o najszerszym potrzebnym dostępie — świadomie.
+
+**Kiedy 5b, kiedy 5c:** 5c = praca zadaniowo-interaktywna, koszt koordynacji dominuje (1 kontekst, 1 watcher, zero idle-burn ról); 5b = długa stanowa warta per rola, **twardy RBAC sektorów**, mix modeli per rola, odporność na SPOF orkiestratora. Przepis operacyjny orkiestratora: `skills/orkiestrator-jednoproces.md`.
+
 ### 6. Klucz prywatny roli
 
 Zostaje na maszynie agenta (perms 600), **nigdy** commitowany.
