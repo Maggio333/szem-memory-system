@@ -50,6 +50,29 @@ instancja/
 - **Zero sekretów w gicie:** klucze żyją poza repo (katalog kluczy, perms 600); w gicie tylko wskaźnik ścieżki i fingerprint. `.beads/` nie jest materiałem do commitowania ani synchronizacji repo.
 - **Attribution:** README formatki podaje podstawę na Omp (uczciwe źródło) — patrz README §Podstawa.
 
+## 3b. Tryb jednoprocesowy (orkiestrator + role-subagenci)
+
+Wariant Adapter-Omp pod pracę zadaniową: zamiast N procesów `omp` (jeden per rola — QUICKSTART §5b) działa **jeden proces omp — orkiestrator** — na workspace zbudowanym krokiem 4 QUICKSTART, a role są **subagentami harnessu** spawnowanymi per zadanie. Priming roli per zadanie: subagent dostaje `profil.yml` + `tozsamosc/o-mnie.md` roli z jej workspace'u oraz **wąski prompt** pod konkretne zadanie — rola nie prowadzi własnej sesji ani własnego dyżuru.
+
+> **GRANICA BEZPIECZEŃSTWA (obowiązkowa).** Subagent dziedziczy **proces, środowisko i klucze ORKIESTRATORA** — hard-RBAC per rola **NIE działa** wewnątrz jednego procesu. Role w tym trybie to **podział pracy (funkcyjny), nie izolacja sektorów**. Gdy sektory mają być twardo rozdzielone per rola → tryb multi-pane (QUICKSTART §5b). Orkiestratora uruchamiaj na kluczu roli o **najszerszym potrzebnym** dostępie — świadomie, bo ten dostęp dziedziczy każda spawnowana rola.
+
+Różnice vs multi-pane:
+
+| Aspekt | Jednoprocesowy (§3b) | Multi-pane (§5b) |
+|---|---|---|
+| Procesy | 1× omp (orkiestrator) | N× omp (jeden per rola) |
+| Tożsamość roli | priming per zadanie (profil.yml + o-mnie.md) | pełna sesja per rola |
+| RBAC sektorów | funkcyjny (klucz orkiestratora dziedziczony) | twardy (gitolite, klucz per rola) |
+| Watcher kanału | jeden na proces (orkiestratora) | jeden per rola |
+| Tracker | bd orkiestratora, wpisy tagowane `[<rola>]` | bd per agent |
+| Koszt koordynacji | niski: 1 kontekst, 1 watcher, brak idle-burn ról | wysoki: N kontekstów, idle per pane |
+| Model per rola | jeden (orkiestratora) | dowolny mix per rola |
+| Odporność | SPOF: pad orkiestratora zatrzymuje wszystkie role | pad jednej roli nie rusza pozostałych |
+
+Kanał koordynacji w tym trybie: rola-subagent publikuje posty **sama**, zawsze z **własnego izolowanego clone'a** repo kanału (mktemp), commit+push z retry pull-first (max 3 próby), autor = rola. Jeden watcher na proces — trzyma go orkiestrator; role nie trzymają watcherów. Claim-before-act obowiązuje bez zmian.
+
+Przepis operacyjny (claim przed spawnem, priming, publikacja z izolowanego clone'a, tagowanie w trackerze, anty-wzorce): `skills/orkiestrator-jednoproces.md`. Odpalenie: `tools/run-agent.sh` (Windows: `tools/start.bat run`) — patrz QUICKSTART §5c.
+
 ## 4. Jak dodać drugi adapter (np. inny harness)
 
 1. Spełnij kontrakt §2 (wszystkie 6 wymagań) na swoim harnessie.
