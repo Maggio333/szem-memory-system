@@ -40,10 +40,7 @@ load_manifest() {
         val="${val%\"}"; val="${val#\"}"; val="${val%\'}"; val="${val#\'}"   # zdejmij jeden poziom cudzysłowów
         case " $_MANIFEST_KEYS " in
           *" $key "*) printf -v "$key" '%s' "$val" ;;
-          *) case "$key" in
-               WATCH_DOMAINS_*) printf -v "$key" '%s' "$val" ;;
-               *) echo "[manifest] pomijam nieznany klucz: $key" >&2 ;;
-             esac ;;
+          *) echo "[manifest] pomijam nieznany klucz: $key" >&2 ;;
         esac ;;
     esac
   done < "$f"

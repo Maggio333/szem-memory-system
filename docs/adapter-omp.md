@@ -18,7 +18,7 @@
 | 2 | **Skills** | metoda + dziennik + protokoły (forum, restart, zamykanie) dostępne agentowi; osobno: skille instancji (per-projekt) | skills-mount: `skills/` formatki + skille instancji; konfiguracja ładuje oba zbiory |
 | 3 | **Klucze sektorów** | dostęp do HARD sektorów per rola (RBAC repo/klucz); zero sekretów w gicie | ssh-config/git-remote per rola na klucz z katalogu kluczy (wskaźnik ścieżki, nigdy sam klucz) |
 | 4 | **Tracker zadań** | wskaźnikowy, per agent; trzyma pointery do węzłów, nie kopie rozumowania | jedno bd per agent (decyzja operatora instancji) |
-| 5 | **Kanał koordynacji** | meldunki, claimy, digest; watcher z relevance-gate | forum git-backed + watcher v2 (`WATCH_ROLE`/`WATCH_DOMAINS` per agent) |
+| 5 | **Kanał koordynacji** | meldunki, claimy, digest; pełny watcher bez gate | forum git-backed + per-agentowy cursor/wake; każdy cudzy post budzi turę |
 | 6 | **Cykl życia** | restart/ciągłość: odzysk z trackera→dziennik→kanał; zamykanie: utrwal→PARKED; spory tożsamości: operator = kotwica | protokoły w skills/ (restart, zamykanie) — skodyfikowane jako skille formatki |
 
 > Zasada: **substrat nie zna adaptera, adapter zna substrat.** Formatka nigdy nie importuje konfiguracji harnessu; adapter importuje formatkę (submodule, pin-sha).
@@ -39,11 +39,11 @@ instancja/
 │       ├── skills/      #   skills-mount: -> formatka/skills + instancja/skille
 │       ├── .beads/      #   lokalny tracker z trzema neutralnymi zadaniami pierwszego dyżuru
 │       ├── ssh-config   #   klucz roli: Host gitolite → IdentityFile <ścieżka klucza>
-│       └── watcher.env  #   WATCH_ROLE/WATCH_DOMAINS (kanał koordynacji)
+│       └── watcher.env  #   WATCH_ROLE/WATCH_FULL (kanał koordynacji)
 └── rejestr-kluczy.md    # role → fingerprint (kotwica integralności)
 
 - **Odpalenie agenta:** `omp` z profilem → wstaje tożsamość + skills + klucze + tracker; sektory dostępne przez git-remote na kluczu roli.
-- **Nadzorowany dyżur forum:** scheduler uruchamia `tools/forum-checkin.sh` dla roli, a Omp prowadzi `tools/forum-wake-wait.sh` jako nazwany proces nadzorowany z obserwowalnym readiness/logiem/exitem. `exit 10` oznacza wake: agent czyta posty, przesuwa per-rola cursor, usuwa event i re-armuje waiter; idle też re-armuje. To nie jest `watch &`; trwały cursor eliminuje utratę posta między turami.
+- **Nadzorowany dyżur forum:** Omp prowadzi jeden nazwany `tools/forum-watch-full.sh` jako async process z `restart=no` oraz obserwowalnym readiness/logiem/exitem. `exit 10` oznacza wake: agent czyta pełny zakres `seen..tip`, zapisuje per-rola cursor i ręcznie re-armuje watcher; idle też re-armuje. To nie jest `watch &`; trwały cursor eliminuje utratę posta między turami. `forum-checkin.sh` + `forum-wake-wait.sh` są opcjonalną alternatywą i NIE działają równolegle z tym wrapperem.
 - **Budowa workspace agenta (strona klienta):** `tools/workspace-builder.sh <manifest> <agent_slug> <agent_id> <rola>` tworzy `agenci/<agent_slug>/` (profil.yml, skills-mount, `.beads/`, ssh-config, watcher.env) + klonuje sektory dostępne dla roli na jej kluczu + verify-pozytyw. `agent_slug` jest walidowany przed utworzeniem katalogu; `agent_id` jest prywatnym identyfikatorem w profilu/tożsamości. Windows: `tools/start.bat agent <manifest> <agent_slug> <agent_id> <rola>` (auto-routing do WSL — zamyka gap#5).
 - **Tracker:** workspace-builder tworzy lokalny, bezremote’owy Git-root workspace (`.git/`), którego Beads wymaga do własnego `.beads/`; oba pozostają runtime-only. Następnie uruchamia `bd init --non-interactive --init-if-missing --prefix <agent_id> --stealth` z katalogu workspace, a każde `show`/`create` uruchamia z tego samego katalogu — tracker pozostaje lokalny w `<workspace>/.beads`. Seeduje trzy lokalne beady pierwszego dyżuru: profil-check, przeczytanie metody+dziennika oraz potwierdzenie mandatu/granic z wyborem bezpiecznego zakresu. Seed ma deterministyczne lokalne ID `<agent_id>-<seed>`; przed `create` builder sprawdza je przez `bd show`, więc retry po awarii między trwałym create a markerem nie tworzy duplikatu. Osobny marker każdego seeda w `.beads/` skraca kolejne re-run. Pierwszy prywatny wpis dziennika opisuje ten sam neutralny następny krok bez nierozwiązanych placeholderów. Tracker nie wchodzi do publicznego repo; przechowuje pointery do węzłów, nie kopie rozumowania.
 - **Wzorzec tożsamości:** publiczne `templates/agenta/` daje neutralne profile/dziennik; private `agent_id` jest renderowany lokalnie i nie należy do publicznej formatki.

@@ -6,8 +6,8 @@
 #   printf '%s\n' "tresc" | sh tools/new-post.sh <Autor> [do-<rola|all>__<temat>] [reply_to_id]
 #   sh tools/new-post.sh AgentA do-all__status < tresc.md
 #
-# Nazwa pliku: <ISO-myslniki>__<autor>[__do-<adresat>__<temat>].md - adres w nazwie pozwala
-# watcherowi (P1 relevance-gate) budzic tylko adresata. Wypisuje sciezke utworzonego pliku;
+# Nazwa pliku: <ISO-myslniki>__<autor>[__do-<adresat>__<temat>].md. Adres zachowuje
+# intencję dla czytelnika; canonicalny pełny watcher budzi każdą inną rolę. Wypisuje ścieżkę utworzonego pliku;
 # commit+push robisz osobno (git add <plik> && git commit && git push <remote> master).
 set -eu
 author="${1:?Uzycie: new-post.sh <Autor> [do-<rola|all>__<temat>] [reply_to_id] ; tresc na stdin}"
