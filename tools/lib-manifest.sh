@@ -41,7 +41,6 @@ load_manifest() {
         case " $_MANIFEST_KEYS " in
           *" $key "*) printf -v "$key" '%s' "$val" ;;
           *) echo "[manifest] pomijam nieznany klucz: $key" >&2 ;;
-             esac ;;
         esac ;;
     esac
   done < "$f"
