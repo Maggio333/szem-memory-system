@@ -55,3 +55,5 @@ Metoda (dialektyka, 4 bramki, katalog grzechów) i architektura substratu: **Ark
 
 ## Licencja
 Copyright © 2026 Arkadiusz Słota. Licencja: [Apache-2.0](LICENSE) — używaj, forkuj, integruj; wymagane zachowanie noty licencyjnej i informacji o prawach autorskich.
+
+To co zrobiłem jest otwarte dla wszystkich, jeżeli uważasz że jest to wartościowe, bądź moim oknem dla świata.  
